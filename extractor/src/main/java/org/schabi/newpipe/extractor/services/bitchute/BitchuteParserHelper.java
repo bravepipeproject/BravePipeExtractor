@@ -10,6 +10,7 @@ import com.grack.nanojson.JsonWriter;
 import org.schabi.newpipe.extractor.NewPipe;
 import org.schabi.newpipe.extractor.downloader.Downloader;
 import org.schabi.newpipe.extractor.downloader.Response;
+import org.schabi.newpipe.extractor.exceptions.ContentNotAvailableException;
 import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
 import org.schabi.newpipe.extractor.exceptions.ReCaptchaException;
@@ -223,6 +224,18 @@ public final class BitchuteParserHelper {
             throw new ParsingException("Could not parse bitchute search results JsonObject: "
                     + e.getMessage());
         }
+
+        final String errorsKey = "errors";
+        if (response.responseCode() == 404 && jsonObject.has(errorsKey)) {
+            if (!jsonObject.getArray(errorsKey).isEmpty()) {
+                final String reason = ((JsonObject) jsonObject.getArray(errorsKey).get(0))
+                        .getString("message");
+                if (reason.contains("Not Found")) {
+                    throw new ContentNotAvailableException(reason);
+                }
+            }
+        }
+
         throw new ExtractionException(
                 "Server response for bitchute search results was not successful: (httpCode="
                         + response.responseCode() + " body: " + response.responseBody());
