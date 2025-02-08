@@ -1,12 +1,12 @@
 package org.schabi.newpipe.extractor.services.rumble.extractors;
 
-import com.grack.nanojson.JsonArray;
 import com.grack.nanojson.JsonObject;
 import com.grack.nanojson.JsonParser;
 import com.grack.nanojson.JsonParserException;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.parser.Parser;
@@ -17,6 +17,7 @@ import org.schabi.newpipe.extractor.MetaInfo;
 import org.schabi.newpipe.extractor.StreamingService;
 import org.schabi.newpipe.extractor.downloader.Downloader;
 import org.schabi.newpipe.extractor.downloader.Response;
+import org.schabi.newpipe.extractor.exceptions.ContentNotAvailableException;
 import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
 import org.schabi.newpipe.extractor.exceptions.PrivateContentException;
@@ -40,8 +41,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -422,15 +421,31 @@ public class RumbleStreamExtractor extends StreamExtractor {
         }
     }
 
-    private void checkIfVideoIsAccessible(final Response response) throws PrivateContentException {
+    @Nullable
+    private String getErrFromTitle() {
+        if (this.doc != null && !this.doc.title().isEmpty()) {
+            return this.doc.title();
+        } else {
+            return null;
+        }
+    }
+
+    private void checkIfVideoIsAccessible(final Response response)
+            throws ContentNotAvailableException {
         if (response.responseCode() == 403) {
-            String errMsg = "This video is private.";
-            if (doc != null && doc.title() != null && !doc.title().isEmpty()) {
-                errMsg = doc.title();
-
+            String errMsg = getErrFromTitle();
+            if (errMsg == null) {
+                errMsg = "This video is private.";
             }
-
             throw new PrivateContentException(errMsg);
+
+        } else if (response.responseCode() == 404) {
+            String errMsg = getErrFromTitle();
+            if (errMsg == null) {
+                errMsg = "unknown, guess the video is missing";
+            }
+            throw new ContentNotAvailableException(errMsg);
+
         }
     }
 
