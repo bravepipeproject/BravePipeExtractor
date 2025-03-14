@@ -374,9 +374,13 @@ public class RumbleStreamExtractor extends StreamExtractor {
         final List<Node> nodes = doc.select(relatedStreamHtmlKey).first().childNodes();
         final StreamInfoItemsCollector collector = new StreamInfoItemsCollector(getServiceId());
         for (final Node node : nodes) {
-            collector.commit(new RumbleStreamRelatedInfoItemExtractor(
-                    getTimeAgoParser(), node, doc
-            ));
+            // we only want Element(s) as they might bear useful content
+            if ((node instanceof Element)
+                    && (null != ((Element) node).closest(".mediaList-item"))) {
+                collector.commit(new RumbleStreamRelatedInfoItemExtractor(
+                        getTimeAgoParser(), (Element) node, doc
+                ));
+            }
         }
 
         return collector;

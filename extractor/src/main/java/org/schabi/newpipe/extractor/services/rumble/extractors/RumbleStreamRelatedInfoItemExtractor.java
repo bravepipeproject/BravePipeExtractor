@@ -31,9 +31,9 @@ public class RumbleStreamRelatedInfoItemExtractor implements StreamInfoItemExtra
         this.parser = parser;
     }
 
-    public RumbleStreamRelatedInfoItemExtractor(final TimeAgoParser parser, final Node element,
+    public RumbleStreamRelatedInfoItemExtractor(final TimeAgoParser parser, final Element element,
                                                 final Document doc) {
-        this.element = (Element) element;
+        this.element = element;
         this.parser = parser;
         this.doc = doc;
     }
