@@ -174,9 +174,14 @@ public class RumbleStreamExtractor extends StreamExtractor {
             final String errorMsg = "Could not extract the view count";
             try {
                 final String viewCount =
-                        RumbleParsingHelper.extractSafely(true, errorMsg,
+                        RumbleParsingHelper.extractSafely(false, errorMsg,
                                 () -> doc.select("div.media-description-info-views")
                                         .first().text());
+                // some or all recorded live streams have no view count
+                // eg.: https://rumble.com/v6q1s7c
+                if (null == viewCount) {
+                    return super.getViewCount();
+                }
                 return Utils.mixedNumberWordToLong(viewCount.replace(",", ""));
             } catch (final NumberFormatException e) {
                 throw new ParsingException(errorMsg, e);
