@@ -425,26 +425,17 @@ public class RumbleStreamExtractor extends StreamExtractor {
         }
     }
 
-    @Nullable
-    private String getErrFromTitle() {
-        if (this.doc != null && !this.doc.title().isEmpty()) {
-            return this.doc.title();
-        } else {
-            return null;
-        }
-    }
-
     private void checkIfVideoIsAccessible(final Response response)
             throws ContentNotAvailableException {
         if (response.responseCode() == 403) {
-            String errMsg = getErrFromTitle();
+            String errMsg = RumbleParsingHelper.getErrFromTitle(this.doc);
             if (errMsg == null) {
                 errMsg = "This video is private.";
             }
             throw new PrivateContentException(errMsg);
 
         } else if (response.responseCode() == 404) {
-            String errMsg = getErrFromTitle();
+            String errMsg = RumbleParsingHelper.getErrFromTitle(this.doc);
             if (errMsg == null) {
                 errMsg = "unknown, guess the video is missing";
             }

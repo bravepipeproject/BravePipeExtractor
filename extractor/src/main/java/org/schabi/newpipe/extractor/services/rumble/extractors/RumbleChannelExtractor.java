@@ -7,6 +7,8 @@ import org.schabi.newpipe.extractor.Image;
 import org.schabi.newpipe.extractor.StreamingService;
 import org.schabi.newpipe.extractor.channel.ChannelExtractor;
 import org.schabi.newpipe.extractor.downloader.Downloader;
+import org.schabi.newpipe.extractor.downloader.Response;
+import org.schabi.newpipe.extractor.exceptions.ContentNotAvailableException;
 import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
 import org.schabi.newpipe.extractor.linkhandler.ListLinkHandler;
@@ -36,10 +38,24 @@ public class RumbleChannelExtractor extends ChannelExtractor {
         super(service, linkHandler);
     }
 
+    private void checkIfChannelIsAvailable(final Response response)
+            throws ContentNotAvailableException {
+        if (response.responseCode() == 404) {
+            String errMsg = RumbleParsingHelper.getErrFromTitle(this.doc);
+            if (errMsg == null) {
+                errMsg = "unknown, guess the channel is not available";
+            }
+            throw new ContentNotAvailableException(errMsg);
+
+        }
+    }
+
     @Override
     public void onFetchPage(@Nonnull final Downloader downloader)
             throws IOException, ExtractionException {
-        doc = Jsoup.parse(getDownloader().get(getUrl()).responseBody());
+        final Response response = getDownloader().get(getUrl());
+        doc = Jsoup.parse(response.responseBody());
+        checkIfChannelIsAvailable(response);
         final String about_link = RumbleParsingHelper.extractSafely(false,
             "",
             () -> doc.select("div.channel-subheader--menu a[href*='about']").first().attr("href")

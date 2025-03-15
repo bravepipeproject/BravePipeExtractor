@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.Nullable;
+
 import static org.schabi.newpipe.extractor.ServiceList.Rumble;
 
 public final class RumbleParsingHelper {
@@ -85,6 +87,15 @@ public final class RumbleParsingHelper {
             }
         }
         return retValue;
+    }
+
+    @Nullable
+    public static String getErrFromTitle(@Nullable final Document doc) {
+        if (doc != null && !doc.title().isEmpty()) {
+            return doc.title();
+        } else {
+            return null;
+        }
     }
 
     /**
