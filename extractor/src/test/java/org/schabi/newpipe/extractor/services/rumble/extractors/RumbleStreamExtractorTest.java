@@ -53,6 +53,8 @@ public class RumbleStreamExtractorTest {
         protected static String expectedUploaderName = "Right Side Broadcasting Network";
         protected static String expectedUploadDate = "2022-06-28 05:36:31.000";
         protected static String expectedTextualUploadDate = "2022-06-28T05:36:31+00:00";
+        protected static int expectedLikeCount = 1000;
+        protected static int expectedDislikeCount = 5;
         protected static StreamExtractor.Privacy expectedPrivacy = StreamExtractor.Privacy.PUBLIC;
         protected static String expectedUploaderUrl = "https://rumble.com/c/RSBN";
         protected static String expectedSupportInfo = "";
@@ -150,12 +152,12 @@ public class RumbleStreamExtractorTest {
 
         @Override
         public long expectedLikeCountAtLeast() {
-            return Long.MIN_VALUE;
+            return expectedLikeCount;
         }
 
         @Override
         public long expectedDislikeCountAtLeast() {
-            return Long.MIN_VALUE;
+            return expectedDislikeCount;
         }
 
         @Override
@@ -214,9 +216,9 @@ public class RumbleStreamExtractorTest {
             /** more info see: {@link RumbleSharedTests#infoItemsResultsTest} */
             final String[] someExpectedResults = {
                     /* here is the speciality 'streamType=LIVE_STREAM' detection test on releated streams */
-                    "StreamInfoItem{streamType=VIDEO_STREAM, uploaderName='Right Side Broadcasting Network', textualUploadDate='null', viewCount=633000, duration=51896, uploaderUrl='https://rumble.com/user/RSBN', infoType=STREAM, serviceId=6, url='https://rumble.com/v46zwql-live-trump-to-deliver-remarks-in-atkinson-new-hampshire-11624.html', name='LIVE REPLAY: Trump to Deliver Remarks in Atkinson, New Hampshire - 1/16/24', thumbnails='[Image {url=https://ak2.rmbl.ws/s8/1/9/z/E/h/9zEhp.0kob.1-small-LIVE-Trump-to-Deliver-Remar.jpg, height=-1, width=-1, estimatedResolutionLevel=UNKNOWN}]', uploaderVerified='false'}",
-                    "StreamInfoItem{streamType=LIVE_STREAM, uploaderName='Right Side Broadcasting Network', textualUploadDate='null', viewCount=5276, duration=-1, uploaderUrl='https://rumble.com/user/RSBN', infoType=STREAM, serviceId=6, url='https://rumble.com/v47mb75-live-president-trump-to-give-remarks-in-concord-new-hampshire-11924.html', name='LIVE: President Trump to Give Remarks in Concord, New Hampshire - 1/19/24', thumbnails='[Image {url=https://ak2.rmbl.ws/s8/1/X/K/D/l/XKDlp.0kob-small-LIVE-President-Trump-to-Giv.jpg, height=-1, width=-1, estimatedResolutionLevel=UNKNOWN}]', uploaderVerified='false'}",
-                    "StreamInfoItem{streamType=VIDEO_STREAM, uploaderName='The Breanna Morello Show', textualUploadDate='null', viewCount=60900, duration=3487, uploaderUrl='https://rumble.com/user/TheBreannaMorelloShow', infoType=STREAM, serviceId=6, url='https://rumble.com/v47zo38-the-breanna-morello-show.html', name='Muslim 'Grooming Gangs' are Raping Children in the U.K. - Tommy Robinson; China Allegedly Creates 100% Lethal COVID Strain - Naomi Wolf | The Breanna', thumbnails='[Image {url=https://ak2.rmbl.ws/s8/1/0/U/1/n/0U1np.0kob-small-The-Breanna-Morello-Show.jpg, height=-1, width=-1, estimatedResolutionLevel=UNKNOWN}]', uploaderVerified='false'}"
+                    "StreamInfoItem{streamType=VIDEO_STREAM, uploaderName='Right Side Broadcasting Network', textualUploadDate='null', viewCount=163000, duration=7359, uploaderUrl='https://rumble.com/user/RSBN', infoType=STREAM, serviceId=6, url='https://rumble.com/v6qzdqe-live-president-trump-and-pete-hegseth-give-remarks-32125.html?e9s=rel_v2_ep', name='LIVE REPLAY: President Trump and Pete Hegseth Give Remarks - 3/21/25', thumbnails='[Image {url=https://1a-1791.com/video/fww1/13/s8/1/g/j/2/u/gj2uy.0kob-small-LIVE-President-Trump-and-Pe.jpg, height=-1, width=-1, estimatedResolutionLevel=UNKNOWN}]', uploaderVerified='false'}",
+                    "StreamInfoItem{streamType=LIVE_STREAM, uploaderName='The Quartering', textualUploadDate='null', viewCount=6700, duration=-1, uploaderUrl='https://rumble.com/user/TheQuartering', infoType=STREAM, serviceId=6, url='https://rumble.com/v6r3cmu-epstein-files-update-sodagate-snow-white-box-office-elon-and-trump-strike-b.html?e9s=rel_v2_ep', name='Epstein Files Update, SodaGate, Snow White Box Office, Elon & Trump Strike Back BIGLY!', thumbnails='[Image {url=https://1a-1791.com/video/fww1/e9/s8/1/2/w/J/v/2wJvy.0kob-small-Epstein-Files-Update-SodaGa.jpg, height=-1, width=-1, estimatedResolutionLevel=UNKNOWN}]', uploaderVerified='false'}",
+                    "StreamInfoItem{streamType=VIDEO_STREAM, uploaderName='Russell Brand', textualUploadDate='null', viewCount=139000, duration=998, uploaderUrl='https://rumble.com/user/russellbrand', infoType=STREAM, serviceId=6, url='https://rumble.com/v6qncja-rumble-cdc-vaccine-autism-study-bunkr.html?e9s=rel_v2_ep', name='They Can't Hide This Any Longer', thumbnails='[Image {url=https://1a-1791.com/video/fww1/26/s8/1/2/e/T/s/2eTsy.0kob-small-They-Cant-Hide-This-Any-Lon.jpg, height=-1, width=-1, estimatedResolutionLevel=UNKNOWN}]', uploaderVerified='false'}"
             };
 
             RumbleSharedTests.infoItemsResultsTest(extractor.getService(),
@@ -262,6 +264,8 @@ public class RumbleStreamExtractorTest {
             expectedUploaderName = "Patriot News Outlet Live";
             expectedUploadDate = "2023-09-02 23:01:40.000";
             expectedTextualUploadDate = "2023-09-02T23:01:40+00:00";
+            expectedLikeCount = 300;
+            expectedDislikeCount = 5;
             expectedPrivacy = StreamExtractor.Privacy.PUBLIC;
             expectedUploaderUrl = "https://rumble.com/c/PatriotNews4u";
             expectedSupportInfo = "";
