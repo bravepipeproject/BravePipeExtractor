@@ -189,14 +189,25 @@ public class RumbleStreamExtractor extends StreamExtractor {
         }
     }
 
+    public long getLikeOrDislikesCount(final String cssQuery) throws ParsingException {
+        try {
+            final String votes = RumbleParsingHelper.extractSafely(false, "",
+                    () -> doc.select(cssQuery)
+                            .first().text());
+            return Utils.mixedNumberWordToLong(votes);
+        } catch (final NumberFormatException e) {
+            return -1;
+        }
+    }
+
     @Override
     public long getLikeCount() throws ParsingException {
-        return -1;
+        return getLikeOrDislikesCount("span[data-js=\"rumbles_up_votes\"]");
     }
 
     @Override
     public long getDislikeCount() throws ParsingException {
-        return -1;
+        return getLikeOrDislikesCount("span[data-js=\"rumbles_down_votes\"]");
     }
 
     @Nonnull
