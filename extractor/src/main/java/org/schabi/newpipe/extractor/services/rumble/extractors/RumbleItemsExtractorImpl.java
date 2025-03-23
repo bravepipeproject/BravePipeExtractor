@@ -5,8 +5,10 @@ import org.jsoup.nodes.Element;
 import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 import org.schabi.newpipe.extractor.Image;
+import org.schabi.newpipe.extractor.ServiceList;
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
 import org.schabi.newpipe.extractor.localization.DateWrapper;
+import org.schabi.newpipe.extractor.services.rumble.settings.RumbleSettings;
 import org.schabi.newpipe.extractor.stream.StreamInfoItemExtractor;
 
 import java.time.OffsetDateTime;
@@ -47,6 +49,10 @@ public abstract class RumbleItemsExtractorImpl /* extends RumbleCommonCodeTrendi
             final String viewCountErrMsg = "Could not extract the view count";
             final String views = getViewNumber(element, viewCountErrMsg, rumbleStreamType);
 
+            final boolean isAd = ServiceList.Rumble.getServiceSettings()
+                    .isSettingEnabled(RumbleSettings.HIDE_PREMIUM_STREAMS)
+                    && isPremium(element);
+
             final String textualDate;
             DateWrapper uploadDate = null;
             textualDate = getTextualDate(element, rumbleStreamType);
@@ -64,7 +70,8 @@ public abstract class RumbleItemsExtractorImpl /* extends RumbleCommonCodeTrendi
                     uploader,
                     uploaderUrl,
                     uploadDate,
-                    (RumbleStreamType.LIVE == rumbleStreamType)
+                    (RumbleStreamType.LIVE == rumbleStreamType),
+                    isAd
             );
 
             list.add(infoItemExtractor);
@@ -123,6 +130,10 @@ public abstract class RumbleItemsExtractorImpl /* extends RumbleCommonCodeTrendi
     protected abstract String getDuration(Element element) throws ParsingException;
 
     protected abstract Elements getAllItems(Document doc);
+
+    protected boolean isPremium(final Element element) { // 20250322 shared code for now
+        return !element.select("use[href$=premium__lock]").isEmpty();
+    }
 
     protected enum RumbleStreamType {
         NORMAL, LIVE, FUTURE

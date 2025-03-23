@@ -24,6 +24,7 @@ public class RumbleSearchVideoStreamInfoItemExtractor implements StreamInfoItemE
     String uploaderUrl;
     DateWrapper uploadDate;
     boolean isLive;
+    boolean isAd;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
     public RumbleSearchVideoStreamInfoItemExtractor(
@@ -32,7 +33,8 @@ public class RumbleSearchVideoStreamInfoItemExtractor implements StreamInfoItemE
             final String textualDate, final String duration,
             final String uploader, final String uploaderUrl,
             final DateWrapper uploadDate,
-            final boolean isLive) {
+            final boolean isLive,
+            final boolean isAd) {
         this.viewCount = viewCount;
         this.textualDate = textualDate;
         this.name = name;
@@ -43,6 +45,7 @@ public class RumbleSearchVideoStreamInfoItemExtractor implements StreamInfoItemE
         this.uploaderUrl = uploaderUrl;
         this.uploadDate = uploadDate;
         this.isLive = isLive;
+        this.isAd = isAd;
     }
 
     @Override
@@ -55,7 +58,7 @@ public class RumbleSearchVideoStreamInfoItemExtractor implements StreamInfoItemE
 
     @Override
     public boolean isAd() {
-        return false;
+        return this.isAd;
     }
 
     @Override

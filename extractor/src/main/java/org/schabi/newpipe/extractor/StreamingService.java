@@ -21,6 +21,7 @@ import org.schabi.newpipe.extractor.localization.TimeAgoParser;
 import org.schabi.newpipe.extractor.localization.TimeAgoPatternsManager;
 import org.schabi.newpipe.extractor.playlist.PlaylistExtractor;
 import org.schabi.newpipe.extractor.search.SearchExtractor;
+import org.schabi.newpipe.extractor.services.rumble.settings.RumbleSettings;
 import org.schabi.newpipe.extractor.settings.ServiceSettings;
 import org.schabi.newpipe.extractor.stream.StreamExtractor;
 import org.schabi.newpipe.extractor.subscription.SubscriptionExtractor;
@@ -450,6 +451,6 @@ public abstract class StreamingService {
      * @return will be null on the default implementation.
      */
     public ServiceSettings getServiceSettings() {
-        return null;
+        return RumbleSettings.getInstance();
     }
 }
