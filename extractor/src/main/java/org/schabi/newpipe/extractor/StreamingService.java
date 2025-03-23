@@ -21,6 +21,7 @@ import org.schabi.newpipe.extractor.localization.TimeAgoParser;
 import org.schabi.newpipe.extractor.localization.TimeAgoPatternsManager;
 import org.schabi.newpipe.extractor.playlist.PlaylistExtractor;
 import org.schabi.newpipe.extractor.search.SearchExtractor;
+import org.schabi.newpipe.extractor.settings.ServiceSettings;
 import org.schabi.newpipe.extractor.stream.StreamExtractor;
 import org.schabi.newpipe.extractor.subscription.SubscriptionExtractor;
 import org.schabi.newpipe.extractor.suggestion.SuggestionExtractor;
@@ -436,4 +437,19 @@ public abstract class StreamingService {
                 "Localization is not supported (\"" + localization + "\")");
     }
 
+    /**
+     *  Service specific settings.
+     *
+     *  If we want to change a specific behaviour of the extractor this is your gateway
+     *  If you want to set options from the client for a specific service you have to
+     *  override below method.
+     *
+     *  As the settings here are service specific the client code should
+     *  never assume a implementation for each service.
+     *
+     * @return will be null on the default implementation.
+     */
+    public ServiceSettings getServiceSettings() {
+        return null;
+    }
 }

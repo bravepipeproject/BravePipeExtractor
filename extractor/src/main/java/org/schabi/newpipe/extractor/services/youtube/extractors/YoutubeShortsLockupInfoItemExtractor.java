@@ -33,12 +33,14 @@ import static org.schabi.newpipe.extractor.utils.Utils.isNullOrEmpty;
  * for an extractor for this UI data type.
  * </p>
  */
-public class YoutubeShortsLockupInfoItemExtractor implements StreamInfoItemExtractor {
+public class YoutubeShortsLockupInfoItemExtractor extends BraveYoutubeShortsLockupHelper
+        implements StreamInfoItemExtractor {
 
     @Nonnull
     private final JsonObject shortsLockupViewModel;
 
     public YoutubeShortsLockupInfoItemExtractor(@Nonnull final JsonObject shortsLockupViewModel) {
+        super(shortsLockupViewModel);
         this.shortsLockupViewModel = shortsLockupViewModel;
     }
 
@@ -89,10 +91,11 @@ public class YoutubeShortsLockupInfoItemExtractor implements StreamInfoItemExtra
 
     @Override
     public long getViewCount() throws ParsingException {
-        final String viewCountText = shortsLockupViewModel.getObject("overlayMetadata")
-                        .getObject("secondaryText")
-                        .getString("content");
+        final String viewCountText = braveExtractViewsOrMembersOnlyText();
         if (!isNullOrEmpty(viewCountText)) {
+            if (braveIsMembersOnlyText(viewCountText)) {
+                return -1; // no viewer count available as 'Members only'
+            }
             // This approach is language dependent
             if (viewCountText.toLowerCase().contains("no views")) {
                 return 0;
@@ -113,7 +116,7 @@ public class YoutubeShortsLockupInfoItemExtractor implements StreamInfoItemExtra
 
     @Override
     public boolean isAd() throws ParsingException {
-        return false;
+        return braveDoIgnoreMembersOnly();
     }
 
     @Override

@@ -46,6 +46,8 @@ import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubePlaylist
 import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQueryHandlerFactory;
 import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeStreamLinkHandlerFactory;
 import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeTrendingLinkHandlerFactory;
+import org.schabi.newpipe.extractor.services.youtube.settings.YoutubeSettings;
+import org.schabi.newpipe.extractor.settings.ServiceSettings;
 import org.schabi.newpipe.extractor.stream.StreamExtractor;
 import org.schabi.newpipe.extractor.subscription.SubscriptionExtractor;
 import org.schabi.newpipe.extractor.suggestion.SuggestionExtractor;
@@ -238,5 +240,10 @@ public class YoutubeService extends StreamingService {
     @Override
     public List<ContentCountry> getSupportedCountries() {
         return SUPPORTED_COUNTRIES;
+    }
+
+    @Override
+    public ServiceSettings getServiceSettings() {
+        return YoutubeSettings.getInstance();
     }
 }
