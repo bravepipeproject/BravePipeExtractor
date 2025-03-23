@@ -173,7 +173,9 @@ public final class RumbleParsingHelper {
 
         // Again another special case here
         final URL url = Utils.stringToURL(thumbnailUrl);
-        if (!url.getAuthority().contains("rmbl.ws") && !url.getAuthority().contains("rumble")) {
+        if (!url.getAuthority().contains("rmbl.ws")
+                && !url.getAuthority().contains("rumble")
+                && !url.getAuthority().contains("1a-1791.com")) {
             // there is no img hosted on rumble so we can't rely on it to extract the Channel.
             // So we try to use the name here too.
             final String uploaderUrl = Rumble.getBaseUrl() + "/user/" + uploaderName;
