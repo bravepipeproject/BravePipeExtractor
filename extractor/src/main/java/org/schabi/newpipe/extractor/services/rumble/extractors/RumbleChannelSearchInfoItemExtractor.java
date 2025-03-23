@@ -5,6 +5,7 @@ import org.jsoup.nodes.Element;
 import org.schabi.newpipe.extractor.Image;
 import org.schabi.newpipe.extractor.channel.ChannelInfoItemExtractor;
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
+import org.schabi.newpipe.extractor.services.rumble.RumbleChannelParsingHelper;
 import org.schabi.newpipe.extractor.services.rumble.RumbleParsingHelper;
 import org.schabi.newpipe.extractor.utils.Utils;
 
@@ -30,20 +31,30 @@ class RumbleChannelSearchInfoItemExtractor implements ChannelInfoItemExtractor {
     }
 
     private void extractData(final Element element, final Document doc) throws ParsingException {
+        final Element data = element.select("div[class*=\"media-subscribe-and-notify\"]").first();
+        if (data == null) {
+            return; // skip this "<article>" as it does not contain any channel/user
+        }
+
+        // most channels have no description here
+        this.description = RumbleParsingHelper.extractSafely(false,
+                "",
+                () -> element.select("p[class*=\"text-sm text-fjord\"]").first().text());
+
         this.name = RumbleParsingHelper.extractSafely(true,
                 "Could not extract the channel name",
-                () -> element.select("h3.channel-item--title").text());
+                () -> data.attr("data-title"));
 
         this.subscriberCount = extractSubscriberCount(element, doc);
 
         this.url = RumbleParsingHelper.extractSafely(true,
                 "Could not extract the stream url",
-                () -> Rumble.getBaseUrl() + element
-                        .select("a.channel-item--a").first().attr("href"));
+                () -> Rumble.getBaseUrl() + "/"
+                        + RumbleChannelParsingHelper.getChannelIdAlreadySelected(data));
 
         this.thumbUrl = extractTheThumbnailOfAChannelInASearchForChannels(element, doc);
 
-        this.verified = !element.select("svg.channel-item--by-verified").isEmpty();
+        this.verified = !element.select("svg[class*=\"verification-badge-icon\"]").isEmpty();
     }
 
     private long extractSubscriberCount(final Element element, final Document document)
@@ -52,7 +63,7 @@ class RumbleChannelSearchInfoItemExtractor implements ChannelInfoItemExtractor {
         final String errorMsg = "Could not get subscriber count";
         final String amountOfSubscribers = RumbleParsingHelper.extractSafely(true,
                 errorMsg,
-                () -> element.select("span.channel-item--subscribers").first().text());
+                () -> element.select("span[class*=\"text-sm text-fjord\"]").first().text());
 
         if (null != amountOfSubscribers) {
             try {
@@ -72,8 +83,9 @@ class RumbleChannelSearchInfoItemExtractor implements ChannelInfoItemExtractor {
         return RumbleParsingHelper.extractThumbnail(document, element.toString(),
                 () -> {
                     final String thumbUrlIdentifier = "i." + element
-                            .select("i.user-image").attr("class")
-                            .split("user-image user-image--img ")[1];
+                            .select("i.user-image")
+                            .attr("class")
+                            .split(" ")[2];
                     return thumbUrlIdentifier;
                 });
     }

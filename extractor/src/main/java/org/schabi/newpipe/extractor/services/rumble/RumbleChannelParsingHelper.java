@@ -10,6 +10,10 @@ public final class RumbleChannelParsingHelper {
     public static String getChannelId(final Element doc) {
         final Element idData =
                 doc.select("div[class~=(listing|channel)-header--buttons] div").first();
+        return getChannelIdAlreadySelected(idData);
+    }
+
+    public static String getChannelIdAlreadySelected(final Element idData) {
         final String channelName = idData.attr("data-slug");
         final String type = idData.attr("data-type");
         if ("channel".equals(type)) {

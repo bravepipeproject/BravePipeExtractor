@@ -107,7 +107,7 @@ public class RumbleSearchExtractor extends SearchExtractor {
 
     private List<RumbleChannelSearchInfoItemExtractor> extractChannelsFromSearchResult()
             throws ParsingException {
-        final Elements elements = doc.select("li.video-listing-entry");
+        final Elements elements = doc.select("article");
         final List<RumbleChannelSearchInfoItemExtractor> extractors = new ArrayList<>();
 
         for (final Element element : elements) {
