@@ -71,6 +71,7 @@ public class RumbleStreamExtractor extends StreamExtractor {
 
     private int ageLimit = -1;
     private List<VideoStream> videoStreams;
+    private List<AudioStream> audioStreams;
     private String hlsUrl = "";
 
     public RumbleStreamExtractor(final StreamingService service, final LinkHandler linkHandler) {
@@ -283,20 +284,17 @@ public class RumbleStreamExtractor extends StreamExtractor {
 
     @Override
     public List<AudioStream> getAudioStreams() {
-        return Collections.emptyList();
+        return audioStreams;
     }
 
     @Override
     public List<VideoStream> getVideoStreams() throws ExtractionException {
-        if (videoStreams == null) {
-            videoStreams = extractVideoStreams();
-        }
         return videoStreams;
     }
 
-    private List<VideoStream> extractVideoStreams() throws ExtractionException {
-        assertPageFetched();
+    private void extractStreams() throws ExtractionException {
 
+        final List<AudioStream> audioStreamsList = new ArrayList<>();
         final List<VideoStream> videoStreamsList = new ArrayList<>();
         final String videoAlternativesKey = "ua";
         final String videoMetaKey = "meta";
@@ -304,7 +302,9 @@ public class RumbleStreamExtractor extends StreamExtractor {
 
         final Set<String> formatKeys =
                 embedJsonStreamInfoObj.getObject(videoAlternativesKey).keySet();
-        for (final String formatKey : formatKeys) { // mp4 or webm or whatever format
+        // mp4 or webm or whatever format: 20250409 there are mp4, webm, tar, timeline, audio
+        // -> tar is a hls m3u8 playlist
+        for (final String formatKey : formatKeys) {
 
             // For some videos there is also a "timeline stream" that is identified
             // by the key 'timeline'. It has only one frame per second and is
@@ -326,7 +326,8 @@ public class RumbleStreamExtractor extends StreamExtractor {
                         formatObj.getObject(res).getString(videoUrlKey); // where the mp4 sits
 
                 if (formatKey.equals("hls") && getStreamType() == StreamType.LIVE_STREAM) {
-                    return fakeVideoStreamForLiveStream(videoStreamsList, videoUrl);
+                    videoStreams = fakeVideoStreamForLiveStream(videoStreamsList, videoUrl);
+                    return;
                 }
 
                 // rumble has some videos resolution data incorrect in 'res'
@@ -343,19 +344,27 @@ public class RumbleStreamExtractor extends StreamExtractor {
                     bitrate = "";
                 }
 
-                final MediaFormat format = MediaFormat.getFromSuffix(formatKey);
-                final VideoStream.Builder builder = new VideoStream.Builder()
-                        .setId(ID_UNKNOWN)
-                        .setIsVideoOnly(false)
-                        .setResolution(actualRes + "p" + bitrate)
-                        .setContent(videoUrl, true)
-                        .setMediaFormat(format);
-
-                videoStreamsList.add(builder.build());
+                if ("audio".equals(formatKey)) {
+                    audioStreamsList.add(createAudioStream(
+                            videoUrl,
+                            metadata.getInt(bitrateJsonKey)));
+                } else { // video streams
+                    videoStreamsList.add(createVideoStream(
+                            formatKey,
+                            videoUrl,
+                            actualRes + (!bitrate.isBlank() ? "p" + bitrate : "")));
+                }
             }
         }
 
-        return videoStreamsList;
+        videoStreams = videoStreamsList;
+        // - Some videos have only HLS video streams but audio as http progressive.
+        // - BravePipe/NewPipe switches to an audio only stream for background (if available)
+        //   -> problem is it starts from the beginning
+        //   -> workaround? disabled possible audiostreams for now (20250409):
+        //      as Brave/NewPipe uses the video stream also for background
+        // audioStreams = audioStreamsList.isEmpty() ? Collections.emptyList() : audioStreamsList;
+        audioStreams = Collections.emptyList();
     }
 
     private List<VideoStream> fakeVideoStreamForLiveStream(
@@ -374,9 +383,59 @@ public class RumbleStreamExtractor extends StreamExtractor {
         return videoStreamsList;
     }
 
+    private AudioStream createAudioStream(
+            final String videoUrl,
+            final int bitrate) {
+        // media format should be aac but it's not mentioned in MediaFormat so default to 'null'
+        final AudioStream.Builder builder = new AudioStream.Builder()
+                .setId(ID_UNKNOWN)
+                .setContent(videoUrl, true)
+                .setDeliveryMethod(DeliveryMethod.PROGRESSIVE_HTTP)
+                .setAverageBitrate(bitrate);
+        return builder.build();
+    }
+
+    private VideoStream createVideoStream(
+            final String formatKey,
+            final String videoUrl,
+            final String resolution) {
+        if ("tar".equals(formatKey) || "hls".equals(formatKey)) { // its a m3u8 playlist
+            return hlsStream(videoUrl, resolution, MediaFormat.MPEG_4);
+        } else {
+            final MediaFormat format = MediaFormat.getFromSuffix(formatKey);
+            return normalStream(videoUrl, resolution, format);
+        }
+    }
+
+    private VideoStream normalStream(
+            final String videoUrl,
+            final String resolution,
+            final MediaFormat format) {
+        final VideoStream.Builder builder = new VideoStream.Builder()
+                .setId(ID_UNKNOWN)
+                .setIsVideoOnly(false)
+                .setResolution(resolution)
+                .setContent(videoUrl, true)
+                .setMediaFormat(format);
+        return builder.build();
+    }
+    private VideoStream hlsStream(
+            final String videoUrl,
+            final String resolution,
+            final MediaFormat format) {
+        final VideoStream.Builder builder = new VideoStream.Builder()
+                .setId(ID_UNKNOWN)
+                .setIsVideoOnly(false)
+                .setResolution(resolution)
+                .setContent(videoUrl, true)
+                .setManifestUrl(videoUrl)
+                .setDeliveryMethod(DeliveryMethod.HLS)
+                .setMediaFormat(format);
+        return builder.build();
+    }
+
     @Override
     public StreamType getStreamType() {
-        assertPageFetched();
         final String videoLiveStreamKey = "live";
         final Number isLive = embedJsonStreamInfoObj.getNumber(videoLiveStreamKey);
         // '1' is also assumed live stream. TODO check if that is true
@@ -435,6 +494,7 @@ public class RumbleStreamExtractor extends StreamExtractor {
         //Document doc = Jsoup.parse(response.responseBody(), getUrl());
         try {
             embedJsonStreamInfoObj = JsonParser.object().from(response2.responseBody());
+            extractStreams();
         } catch (final JsonParserException e) {
             e.printStackTrace();
             throw new ParsingException("Could not read json from: " + queryUrl);
