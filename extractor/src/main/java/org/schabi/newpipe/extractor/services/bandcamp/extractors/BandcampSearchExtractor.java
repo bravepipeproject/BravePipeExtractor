@@ -48,6 +48,7 @@ public class BandcampSearchExtractor extends SearchExtractor {
         return Collections.emptyList();
     }
 
+    @Override
     public InfoItemsPage<InfoItem> getPage(final Page page)
             throws IOException, ExtractionException {
         final MultiInfoItemsCollector collector = new MultiInfoItemsCollector(getServiceId());
@@ -103,7 +104,6 @@ public class BandcampSearchExtractor extends SearchExtractor {
         }
 
         return new InfoItemsPage<>(collector, new Page(nextUrl));
-
     }
 
     @Nonnull

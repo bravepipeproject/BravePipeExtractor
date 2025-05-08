@@ -4,30 +4,36 @@ import static org.schabi.newpipe.extractor.ServiceList.YouTube;
 import static java.util.Collections.singletonList;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
-import org.schabi.newpipe.downloader.DownloaderTestImpl;
+import org.schabi.newpipe.downloader.DownloaderFactory;
 import org.schabi.newpipe.extractor.InfoItem;
 import org.schabi.newpipe.extractor.NewPipe;
 import org.schabi.newpipe.extractor.StreamingService;
 import org.schabi.newpipe.extractor.search.SearchExtractor;
 import org.schabi.newpipe.extractor.search.filter.FilterItem;
 import org.schabi.newpipe.extractor.services.DefaultSearchExtractorTest;
+import org.schabi.newpipe.extractor.services.youtube.YoutubeTestsUtils;
 import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQueryHandlerFactory;
 import org.schabi.newpipe.extractor.services.youtube.search.filter.YoutubeFilters;
 
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import javax.annotation.Nullable;
 
 // Doesn't work with mocks. Makes request with different `dataToSend` I think
 public class YoutubeMusicSearchExtractorTest {
+    private static final String RESOURCE_PATH = DownloaderFactory.RESOURCE_PATH + "services/youtube/extractor/musicSearch/";
+    private static final String BASE_SEARCH_URL = "music.youtube.com/search?q=";
+
     public static class MusicSongs extends DefaultSearchExtractorTest {
         private static SearchExtractor extractor;
         private static final String QUERY = "mocromaniac";
 
         @BeforeAll
         public static void setUp() throws Exception {
-            NewPipe.init(DownloaderTestImpl.getInstance());
+            YoutubeTestsUtils.ensureStateless();
+            NewPipe.init(DownloaderFactory.getDownloader(RESOURCE_PATH + "musicSongs"));
+
             final FilterItem item =
                     getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_YOUTUBE_MUSIC_SONGS);
             extractor = YouTube.getSearchExtractor(QUERY, singletonList(item), null);
@@ -38,8 +44,8 @@ public class YoutubeMusicSearchExtractorTest {
         @Override public StreamingService expectedService() { return YouTube; }
         @Override public String expectedName() { return QUERY; }
         @Override public String expectedId() { return QUERY; }
-        @Override public String expectedUrlContains() { return "music.youtube.com/search?q=" + QUERY; }
-        @Override public String expectedOriginalUrlContains() { return "music.youtube.com/search?q=" + QUERY; }
+        @Override public String expectedUrlContains() { return BASE_SEARCH_URL + QUERY; }
+        @Override public String expectedOriginalUrlContains() { return BASE_SEARCH_URL + QUERY; }
         @Override public String expectedSearchString() { return QUERY; }
         @Nullable @Override public String expectedSearchSuggestion() { return null; }
         @Override public InfoItem.InfoType expectedInfoItemType() { return InfoItem.InfoType.STREAM; }
@@ -51,7 +57,9 @@ public class YoutubeMusicSearchExtractorTest {
 
         @BeforeAll
         public static void setUp() throws Exception {
-            NewPipe.init(DownloaderTestImpl.getInstance());
+            YoutubeTestsUtils.ensureStateless();
+            NewPipe.init(DownloaderFactory.getDownloader(RESOURCE_PATH + "musicVideos"));
+
             final FilterItem item =
                     getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_YOUTUBE_MUSIC_VIDEOS);
             extractor = YouTube.getSearchExtractor(QUERY, singletonList(item), null);
@@ -62,8 +70,8 @@ public class YoutubeMusicSearchExtractorTest {
         @Override public StreamingService expectedService() { return YouTube; }
         @Override public String expectedName() { return QUERY; }
         @Override public String expectedId() { return QUERY; }
-        @Override public String expectedUrlContains() { return "music.youtube.com/search?q=" + QUERY; }
-        @Override public String expectedOriginalUrlContains() { return "music.youtube.com/search?q=" + QUERY; }
+        @Override public String expectedUrlContains() { return BASE_SEARCH_URL + QUERY; }
+        @Override public String expectedOriginalUrlContains() { return BASE_SEARCH_URL + QUERY; }
         @Override public String expectedSearchString() { return QUERY; }
         @Nullable @Override public String expectedSearchSuggestion() { return null; }
         @Override public InfoItem.InfoType expectedInfoItemType() { return InfoItem.InfoType.STREAM; }
@@ -75,7 +83,9 @@ public class YoutubeMusicSearchExtractorTest {
 
         @BeforeAll
         public static void setUp() throws Exception {
-            NewPipe.init(DownloaderTestImpl.getInstance());
+            YoutubeTestsUtils.ensureStateless();
+            NewPipe.init(DownloaderFactory.getDownloader(RESOURCE_PATH + "musicAlbums"));
+
             final FilterItem item =
                     getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_YOUTUBE_MUSIC_ALBUMS);
             extractor = YouTube.getSearchExtractor(QUERY, singletonList(item), null);
@@ -86,8 +96,8 @@ public class YoutubeMusicSearchExtractorTest {
         @Override public StreamingService expectedService() { return YouTube; }
         @Override public String expectedName() { return QUERY; }
         @Override public String expectedId() { return QUERY; }
-        @Override public String expectedUrlContains() { return "music.youtube.com/search?q=" + URLEncoder.encode(QUERY); }
-        @Override public String expectedOriginalUrlContains() { return "music.youtube.com/search?q=" + URLEncoder.encode(QUERY); }
+        @Override public String expectedUrlContains() { return BASE_SEARCH_URL + URLEncoder.encode(QUERY, StandardCharsets.UTF_8); }
+        @Override public String expectedOriginalUrlContains() { return BASE_SEARCH_URL + URLEncoder.encode(QUERY, StandardCharsets.UTF_8); }
         @Override public String expectedSearchString() { return QUERY; }
         @Nullable @Override public String expectedSearchSuggestion() { return null; }
         @Override public InfoItem.InfoType expectedInfoItemType() { return InfoItem.InfoType.PLAYLIST; }
@@ -99,7 +109,9 @@ public class YoutubeMusicSearchExtractorTest {
 
         @BeforeAll
         public static void setUp() throws Exception {
-            NewPipe.init(DownloaderTestImpl.getInstance());
+            YoutubeTestsUtils.ensureStateless();
+            NewPipe.init(DownloaderFactory.getDownloader(RESOURCE_PATH + "musicPlaylists"));
+
             final FilterItem item =
                     getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_YOUTUBE_MUSIC_PLAYLISTS);
             extractor = YouTube.getSearchExtractor(QUERY, singletonList(item), null);
@@ -110,21 +122,22 @@ public class YoutubeMusicSearchExtractorTest {
         @Override public StreamingService expectedService() { return YouTube; }
         @Override public String expectedName() { return QUERY; }
         @Override public String expectedId() { return QUERY; }
-        @Override public String expectedUrlContains() { return "music.youtube.com/search?q=" + QUERY; }
-        @Override public String expectedOriginalUrlContains() { return "music.youtube.com/search?q=" + QUERY; }
+        @Override public String expectedUrlContains() { return BASE_SEARCH_URL + QUERY; }
+        @Override public String expectedOriginalUrlContains() { return BASE_SEARCH_URL + QUERY; }
         @Override public String expectedSearchString() { return QUERY; }
         @Nullable @Override public String expectedSearchSuggestion() { return null; }
         @Override public InfoItem.InfoType expectedInfoItemType() { return InfoItem.InfoType.PLAYLIST; }
     }
 
-    @Disabled
     public static class MusicArtists extends DefaultSearchExtractorTest {
         private static SearchExtractor extractor;
         private static final String QUERY = "kevin";
 
         @BeforeAll
         public static void setUp() throws Exception {
-            NewPipe.init(DownloaderTestImpl.getInstance());
+            YoutubeTestsUtils.ensureStateless();
+            NewPipe.init(DownloaderFactory.getDownloader(RESOURCE_PATH + "musicArtists"));
+
             final FilterItem item =
                     getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_YOUTUBE_MUSIC_ARTISTS);
             extractor = YouTube.getSearchExtractor(QUERY, singletonList(item), null);
@@ -135,22 +148,22 @@ public class YoutubeMusicSearchExtractorTest {
         @Override public StreamingService expectedService() { return YouTube; }
         @Override public String expectedName() { return QUERY; }
         @Override public String expectedId() { return QUERY; }
-        @Override public String expectedUrlContains() { return "music.youtube.com/search?q=" + QUERY; }
-        @Override public String expectedOriginalUrlContains() { return "music.youtube.com/search?q=" + QUERY; }
+        @Override public String expectedUrlContains() { return BASE_SEARCH_URL + QUERY; }
+        @Override public String expectedOriginalUrlContains() { return BASE_SEARCH_URL + QUERY; }
         @Override public String expectedSearchString() { return QUERY; }
         @Nullable @Override public String expectedSearchSuggestion() { return null; }
         @Override public InfoItem.InfoType expectedInfoItemType() { return InfoItem.InfoType.CHANNEL; }
     }
 
-    @Disabled("Currently constantly switching between \"Did you mean\" and \"Showing results for ...\" occurs")
     public static class Suggestion extends DefaultSearchExtractorTest {
         private static SearchExtractor extractor;
         private static final String QUERY = "megaman x3";
-        private static final boolean CORRECTED = true;
 
         @BeforeAll
         public static void setUp() throws Exception {
-            NewPipe.init(DownloaderTestImpl.getInstance());
+            YoutubeTestsUtils.ensureStateless();
+            NewPipe.init(DownloaderFactory.getDownloader(RESOURCE_PATH + "suggestion"));
+
             final FilterItem item =
                     getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_YOUTUBE_MUSIC_SONGS);
             extractor = YouTube.getSearchExtractor(QUERY, singletonList(item), null);
@@ -161,12 +174,11 @@ public class YoutubeMusicSearchExtractorTest {
         @Override public StreamingService expectedService() { return YouTube; }
         @Override public String expectedName() { return QUERY; }
         @Override public String expectedId() { return QUERY; }
-        @Override public String expectedUrlContains() { return "music.youtube.com/search?q=" + URLEncoder.encode(QUERY); }
-        @Override public String expectedOriginalUrlContains() { return "music.youtube.com/search?q=" + URLEncoder.encode(QUERY); }
+        @Override public String expectedUrlContains() { return BASE_SEARCH_URL + URLEncoder.encode(QUERY, StandardCharsets.UTF_8); }
+        @Override public String expectedOriginalUrlContains() { return BASE_SEARCH_URL + URLEncoder.encode(QUERY, StandardCharsets.UTF_8); }
         @Override public String expectedSearchString() { return QUERY; }
         @Nullable @Override public String expectedSearchSuggestion() { return "mega man x3"; }
         @Override public InfoItem.InfoType expectedInfoItemType() { return InfoItem.InfoType.STREAM; }
-        @Override public boolean isCorrectedSearch() { return CORRECTED; }
     }
 
     public static class CorrectedSearch extends DefaultSearchExtractorTest {
@@ -176,7 +188,9 @@ public class YoutubeMusicSearchExtractorTest {
 
         @BeforeAll
         public static void setUp() throws Exception {
-            NewPipe.init(DownloaderTestImpl.getInstance());
+            YoutubeTestsUtils.ensureStateless();
+            NewPipe.init(DownloaderFactory.getDownloader(RESOURCE_PATH + "corrected"));
+
             final FilterItem item =
                     getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_YOUTUBE_MUSIC_SONGS);
             extractor = YouTube.getSearchExtractor(QUERY, singletonList(item), null);
@@ -187,8 +201,8 @@ public class YoutubeMusicSearchExtractorTest {
         @Override public StreamingService expectedService() { return YouTube; }
         @Override public String expectedName() { return QUERY; }
         @Override public String expectedId() { return QUERY; }
-        @Override public String expectedUrlContains() { return "music.youtube.com/search?q=" + URLEncoder.encode(QUERY); }
-        @Override public String expectedOriginalUrlContains() { return "music.youtube.com/search?q=" + URLEncoder.encode(QUERY); }
+        @Override public String expectedUrlContains() { return BASE_SEARCH_URL + URLEncoder.encode(QUERY, StandardCharsets.UTF_8); }
+        @Override public String expectedOriginalUrlContains() { return BASE_SEARCH_URL + URLEncoder.encode(QUERY, StandardCharsets.UTF_8); }
         @Override public String expectedSearchString() { return QUERY; }
         @Nullable @Override public String expectedSearchSuggestion() { return EXPECTED_SUGGESTION; }
         @Override public InfoItem.InfoType expectedInfoItemType() { return InfoItem.InfoType.STREAM; }
