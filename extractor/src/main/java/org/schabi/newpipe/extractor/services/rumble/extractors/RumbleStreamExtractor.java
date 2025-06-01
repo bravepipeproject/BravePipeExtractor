@@ -329,7 +329,12 @@ public class RumbleStreamExtractor extends StreamExtractor {
                     videoStreams = fakeVideoStreamForLiveStream(videoStreamsList, videoUrl);
                     return;
                 }
-
+                if (res.equals("auto")) {
+                    // 'auto' provides a master HLS playlist but
+                    // we do not support automatic bitrate changes
+                    // -> skip it
+                    continue;
+                }
                 // rumble has some videos resolution data incorrect in 'res'
                 // --> now we use the apparently correct resolution from the available metadata.
                 // --> as the resolution is not sufficient to distinguish the streams, we also
