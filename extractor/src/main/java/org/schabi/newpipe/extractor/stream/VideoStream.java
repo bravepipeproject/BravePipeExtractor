@@ -482,4 +482,9 @@ public final class VideoStream extends Stream {
     public ItagItem getItagItem() {
         return itagItem;
     }
+
+    //want to set the bitrate if available
+    public void braveSetBitrate(final int videoBitrate) {
+        this.bitrate = videoBitrate;
+    }
 }

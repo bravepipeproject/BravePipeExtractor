@@ -349,10 +349,16 @@ public class RumbleStreamExtractor extends StreamExtractor {
                             videoUrl,
                             metadata.getInt(bitrateJsonKey)));
                 } else { // video streams
-                    videoStreamsList.add(createVideoStream(
+                    final VideoStream videoStream = createVideoStream(
                             formatKey,
                             videoUrl,
-                            actualRes + (!bitrate.isBlank() ? "p" + bitrate : "")));
+                            actualRes + (!bitrate.isBlank() ? "p" + bitrate : ""));
+                    if (metadata.has(bitrateJsonKey)) {
+
+                        // the bitrate is given in kbit but we need bits: -> factor 1000
+                        videoStream.braveSetBitrate(metadata.getInt(bitrateJsonKey) * 1000);
+                    }
+                    videoStreamsList.add(videoStream);
                 }
             }
         }
