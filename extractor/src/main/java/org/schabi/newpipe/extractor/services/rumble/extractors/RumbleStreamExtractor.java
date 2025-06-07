@@ -325,16 +325,6 @@ public class RumbleStreamExtractor extends StreamExtractor {
                 final String videoUrl =
                         formatObj.getObject(res).getString(videoUrlKey); // where the mp4 sits
 
-                if (formatKey.equals("hls") && getStreamType() == StreamType.LIVE_STREAM) {
-                    videoStreams = fakeVideoStreamForLiveStream(videoStreamsList, videoUrl);
-                    return;
-                }
-                if (res.equals("auto")) {
-                    // 'auto' provides a master HLS playlist but
-                    // we do not support automatic bitrate changes
-                    // -> skip it
-                    continue;
-                }
                 // rumble has some videos resolution data incorrect in 'res'
                 // --> now we use the apparently correct resolution from the available metadata.
                 // --> as the resolution is not sufficient to distinguish the streams, we also
@@ -354,6 +344,14 @@ public class RumbleStreamExtractor extends StreamExtractor {
                             videoUrl,
                             metadata.getInt(bitrateJsonKey)));
                 } else { // video streams
+                    if (getStreamType() != StreamType.LIVE_STREAM && res.equals("auto")) {
+                        // 'auto' provides a master HLS playlist but
+                        // we do not support automatic bitrate changes and
+                        // cannot download them.
+                        // -> skip it
+                        continue;
+                    }
+
                     final VideoStream videoStream = createVideoStream(
                             formatKey,
                             videoUrl,
@@ -372,26 +370,10 @@ public class RumbleStreamExtractor extends StreamExtractor {
         // - Some videos have only HLS video streams but audio as http progressive.
         // - BravePipe/NewPipe switches to an audio only stream for background (if available)
         //   -> problem is it starts from the beginning
-        //   -> workaround? disabled possible audiostreams for now (20250409):
-        //      as Brave/NewPipe uses the video stream also for background
+        //   -> workaround? disable possible audiostreams for now (20250409):
+        //      so BravePipe/NewPipe uses the video stream also for background
         // audioStreams = audioStreamsList.isEmpty() ? Collections.emptyList() : audioStreamsList;
         audioStreams = Collections.emptyList();
-    }
-
-    private List<VideoStream> fakeVideoStreamForLiveStream(
-            final List<VideoStream> videoStreamsList,
-            final String videoUrl) {
-        final VideoStream.Builder builder = new VideoStream.Builder()
-                .setId(ID_UNKNOWN)
-                .setIsVideoOnly(false)
-                .setResolution("")
-                .setContent(videoUrl, false) // is HLS manifest
-                .setDeliveryMethod(DeliveryMethod.HLS)
-                // 'mp4' is just chosen as it seems the most common
-                .setMediaFormat(MediaFormat.MPEG_4);
-
-        videoStreamsList.add(builder.build());
-        return videoStreamsList;
     }
 
     private AudioStream createAudioStream(
