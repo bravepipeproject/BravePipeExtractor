@@ -28,6 +28,10 @@ checkstyleMain
         .exclude ("org/schabi/newpipe/extractor/services/youtube/protos")
 
 wire {
+    sourcePath {
+        srcDir 'src/main/wire/proto'
+    }
+
     java {
     }
 }
