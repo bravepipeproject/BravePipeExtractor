@@ -1,27 +1,26 @@
 package org.schabi.newpipe.extractor.services.soundcloud.search;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.schabi.newpipe.extractor.ServiceList.SoundCloud;
+import static java.util.Collections.singletonList;
+
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.schabi.newpipe.downloader.DownloaderTestImpl;
-import org.schabi.newpipe.extractor.NewPipe;
+import org.schabi.newpipe.extractor.InitNewPipeTest;
 import org.schabi.newpipe.extractor.search.filter.FilterContainer;
 import org.schabi.newpipe.extractor.search.filter.FilterItem;
 import org.schabi.newpipe.extractor.services.DefaultSearchExtractorTest;
 import org.schabi.newpipe.extractor.services.soundcloud.search.filter.SoundcloudFilters;
 
-import static java.util.Collections.singletonList;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.schabi.newpipe.extractor.ServiceList.SoundCloud;
-
 public class SoundcloudSearchQHTest {
 
     @BeforeAll
-    public static void setUpClass() throws Exception {
-        NewPipe.init(DownloaderTestImpl.getInstance());
+    static void setUp() {
+        InitNewPipeTest.initEmpty();
     }
 
-    private static String removeClientId(String url) {
-        String[] splitUrl = url.split("client_id=[a-zA-Z0-9]*&");
+    private static String removeClientId(final String url) {
+        final String[] splitUrl = url.split("client_id=[a-zA-Z0-9]*&");
         return splitUrl[0] + splitUrl[1];
     }
 

@@ -104,6 +104,7 @@ public enum LibraryStringIds {
     CHANNEL_TAB_CHANNELS, /* Channels */
     CHANNEL_TAB_PLAYLISTS, /* Playlists */
     CHANNEL_TAB_ALBUMS, /* Albums */
+    CHANNEL_TAB_LIKES, /* Likes */
     SEARCH_FILTERS_SENSITIVITY_SAFE, /* Safe */
     SEARCH_FILTERS_SENSITIVITY_NORMAL, /* Normal */
     SEARCH_FILTERS_SENSITIVITY_NSFW,  /* Nsfw */

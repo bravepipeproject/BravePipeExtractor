@@ -40,6 +40,8 @@ public class SoundcloudChannelTabExtractor extends ChannelTabExtractor {
             return "/playlists_without_albums";
         } else if (type.equals(ChannelTabs.ALBUMS)) {
             return "/albums";
+        } else if (type.equals(ChannelTabs.LIKES)) {
+            return "/likes";
         }
         throw new ParsingException("Unsupported tab: " + type);
     }

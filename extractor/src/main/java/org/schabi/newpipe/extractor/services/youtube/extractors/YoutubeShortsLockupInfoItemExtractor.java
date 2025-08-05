@@ -93,9 +93,12 @@ public class YoutubeShortsLockupInfoItemExtractor extends BraveYoutubeShortsLock
     public long getViewCount() throws ParsingException {
         final String viewCountText = braveExtractViewsOrMembersOnlyText();
         if (!isNullOrEmpty(viewCountText)) {
-            if (braveIsMembersOnlyText(viewCountText)) {
-                return -1; // no viewer count available as 'Members only'
+            if (viewCountText.contains("✪")) {
+                // If secondary text content contains ✪, this short should be a members first or a
+                // members only one, we can't extract its view count in this case
+                return -1;
             }
+
             // This approach is language dependent
             if (viewCountText.toLowerCase().contains("no views")) {
                 return 0;

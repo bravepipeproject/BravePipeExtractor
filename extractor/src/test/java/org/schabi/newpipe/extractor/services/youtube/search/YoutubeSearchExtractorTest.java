@@ -9,20 +9,19 @@ import static org.schabi.newpipe.extractor.ServiceList.YouTube;
 import static org.schabi.newpipe.extractor.services.DefaultTests.assertNoDuplicatedItems;
 import static java.util.Collections.singletonList;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.schabi.newpipe.downloader.DownloaderFactory;
 import org.schabi.newpipe.extractor.InfoItem;
+import org.schabi.newpipe.extractor.InitNewPipeTest;
 import org.schabi.newpipe.extractor.ListExtractor;
 import org.schabi.newpipe.extractor.MetaInfo;
-import org.schabi.newpipe.extractor.NewPipe;
 import org.schabi.newpipe.extractor.StreamingService;
 import org.schabi.newpipe.extractor.channel.ChannelInfoItem;
 import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 import org.schabi.newpipe.extractor.search.SearchExtractor;
 import org.schabi.newpipe.extractor.search.filter.FilterItem;
 import org.schabi.newpipe.extractor.services.DefaultSearchExtractorTest;
+import org.schabi.newpipe.extractor.services.youtube.InitYoutubeTest;
 import org.schabi.newpipe.extractor.services.youtube.YoutubeTestsUtils;
 import org.schabi.newpipe.extractor.services.youtube.search.filter.YoutubeFilters;
 import org.schabi.newpipe.extractor.stream.Description;
@@ -39,21 +38,14 @@ import javax.annotation.Nullable;
 
 public class YoutubeSearchExtractorTest {
 
-    private static final String RESOURCE_PATH = DownloaderFactory.RESOURCE_PATH + "services/youtube/extractor/search/";
-
-    public static class All extends DefaultSearchExtractorTest {
-        private static SearchExtractor extractor;
+    public static class All extends DefaultSearchExtractorTest implements InitYoutubeTest {
         private static final String QUERY = "test";
 
-        @BeforeAll
-        public static void setUp() throws Exception {
-            YoutubeTestsUtils.ensureStateless();
-            NewPipe.init(DownloaderFactory.getDownloader(RESOURCE_PATH + "all"));
-            extractor = YouTube.getSearchExtractor(QUERY);
-            extractor.fetchPage();
+        @Override
+        protected SearchExtractor createExtractor() throws Exception {
+            return YouTube.getSearchExtractor(QUERY);
         }
 
-        @Override public SearchExtractor extractor() { return extractor; }
         @Override public StreamingService expectedService() { return YouTube; }
         @Override public String expectedName() { return QUERY; }
         @Override public String expectedId() { return QUERY; }
@@ -63,20 +55,15 @@ public class YoutubeSearchExtractorTest {
         @Nullable @Override public String expectedSearchSuggestion() { return null; }
     }
 
-    public static class Channel extends DefaultSearchExtractorTest {
-        private static SearchExtractor extractor;
+    public static class Channel extends DefaultSearchExtractorTest implements InitYoutubeTest {
         private static final String QUERY = "test";
 
-        @BeforeAll
-        public static void setUp() throws Exception {
-            YoutubeTestsUtils.ensureStateless();
-            NewPipe.init(DownloaderFactory.getDownloader(RESOURCE_PATH + "channel"));
+        @Override
+        protected SearchExtractor createExtractor() throws Exception {
             final FilterItem item = getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_CHANNELS);
-            extractor = YouTube.getSearchExtractor(QUERY, singletonList(item), null);
-            extractor.fetchPage();
+            return YouTube.getSearchExtractor(QUERY, singletonList(item), null);
         }
 
-        @Override public SearchExtractor extractor() { return extractor; }
         @Override public StreamingService expectedService() { return YouTube; }
         @Override public String expectedName() { return QUERY; }
         @Override public String expectedId() { return QUERY; }
@@ -88,20 +75,15 @@ public class YoutubeSearchExtractorTest {
         @Override public InfoItem.InfoType expectedInfoItemType() { return InfoItem.InfoType.CHANNEL; }
     }
 
-    public static class Playlists extends DefaultSearchExtractorTest {
-        private static SearchExtractor extractor;
+    public static class Playlists extends DefaultSearchExtractorTest implements InitYoutubeTest {
         private static final String QUERY = "test";
 
-        @BeforeAll
-        public static void setUp() throws Exception {
-            YoutubeTestsUtils.ensureStateless();
-            NewPipe.init(DownloaderFactory.getDownloader(RESOURCE_PATH + "playlist"));
+        @Override
+        protected SearchExtractor createExtractor() throws Exception {
             final FilterItem item = getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_PLAYLISTS);
-            extractor = YouTube.getSearchExtractor(QUERY, singletonList(item), null);
-            extractor.fetchPage();
+            return YouTube.getSearchExtractor(QUERY, singletonList(item), null);
         }
 
-        @Override public SearchExtractor extractor() { return extractor; }
         @Override public StreamingService expectedService() { return YouTube; }
         @Override public String expectedName() { return QUERY; }
         @Override public String expectedId() { return QUERY; }
@@ -113,20 +95,15 @@ public class YoutubeSearchExtractorTest {
         @Override public InfoItem.InfoType expectedInfoItemType() { return InfoItem.InfoType.PLAYLIST; }
     }
 
-    public static class Videos extends DefaultSearchExtractorTest {
-        private static SearchExtractor extractor;
+    public static class Videos extends DefaultSearchExtractorTest implements InitYoutubeTest {
         private static final String QUERY = "test";
 
-        @BeforeAll
-        public static void setUp() throws Exception {
-            YoutubeTestsUtils.ensureStateless();
-            NewPipe.init(DownloaderFactory.getDownloader(RESOURCE_PATH + "videos"));
+        @Override
+        protected SearchExtractor createExtractor() throws Exception {
             final FilterItem item = getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_VIDEOS);
-            extractor = YouTube.getSearchExtractor(QUERY, singletonList(item), null);
-            extractor.fetchPage();
+            return YouTube.getSearchExtractor(QUERY, singletonList(item), null);
         }
 
-        @Override public SearchExtractor extractor() { return extractor; }
         @Override public StreamingService expectedService() { return YouTube; }
         @Override public String expectedName() { return QUERY; }
         @Override public String expectedId() { return QUERY; }
@@ -145,21 +122,16 @@ public class YoutubeSearchExtractorTest {
      * Hint: YT mostly shows "did you mean..." when you are searching in another language.
      * </p>
      */
-    public static class Suggestion extends DefaultSearchExtractorTest {
-        private static SearchExtractor extractor;
+    public static class Suggestion extends DefaultSearchExtractorTest implements InitYoutubeTest {
         private static final String QUERY = "on board ing";
         private static final String EXPECTED_SUGGESTION = "on boarding";
 
-        @BeforeAll
-        public static void setUp() throws Exception {
-            YoutubeTestsUtils.ensureStateless();
-            NewPipe.init(DownloaderFactory.getDownloader(RESOURCE_PATH + "suggestions"));
+        @Override
+        protected SearchExtractor createExtractor() throws Exception {
             final FilterItem item = getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_VIDEOS);
-            extractor = YouTube.getSearchExtractor(QUERY, singletonList(item), null);
-            extractor.fetchPage();
+            return YouTube.getSearchExtractor(QUERY, singletonList(item), null);
         }
 
-        @Override public SearchExtractor extractor() { return extractor; }
         @Override public StreamingService expectedService() { return YouTube; }
         @Override public String expectedName() { return QUERY; }
         @Override public String expectedId() { return QUERY; }
@@ -173,21 +145,16 @@ public class YoutubeSearchExtractorTest {
     /**
      * Test for YT's "Showing results for...".
      */
-    public static class CorrectedSearch extends DefaultSearchExtractorTest {
-        private static SearchExtractor extractor;
+    public static class CorrectedSearch extends DefaultSearchExtractorTest implements InitYoutubeTest {
         private static final String QUERY = "pewdeipie";
         private static final String EXPECTED_SUGGESTION = "pewdiepie";
 
-        @BeforeAll
-        public static void setUp() throws Exception {
-            YoutubeTestsUtils.ensureStateless();
-            NewPipe.init(DownloaderFactory.getDownloader(RESOURCE_PATH + "corrected"));
+        @Override
+        protected SearchExtractor createExtractor() throws Exception {
             final FilterItem item = getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_VIDEOS);
-            extractor = YouTube.getSearchExtractor(QUERY, singletonList(item), null);
-            extractor.fetchPage();
+            return YouTube.getSearchExtractor(QUERY, singletonList(item), null);
         }
 
-        @Override public SearchExtractor extractor() { return extractor; }
         @Override public StreamingService expectedService() { return YouTube; }
         @Override public String expectedName() { return QUERY; }
         @Override public String expectedId() { return QUERY; }
@@ -199,19 +166,15 @@ public class YoutubeSearchExtractorTest {
         @Override public boolean isCorrectedSearch() { return true; }
     }
 
-    public static class RandomQueryNoMorePages extends DefaultSearchExtractorTest {
-        private static SearchExtractor extractor;
+    public static class RandomQueryNoMorePages extends DefaultSearchExtractorTest
+        implements InitYoutubeTest {
         private static final String QUERY = "UCO6AK";
 
-        @BeforeAll
-        public static void setUp() throws Exception {
-            YoutubeTestsUtils.ensureStateless();
-            NewPipe.init(DownloaderFactory.getDownloader(RESOURCE_PATH + "random"));
-            extractor = YouTube.getSearchExtractor(QUERY);
-            extractor.fetchPage();
+        @Override
+        protected SearchExtractor createExtractor() throws Exception {
+            return YouTube.getSearchExtractor(QUERY);
         }
 
-        @Override public SearchExtractor extractor() { return extractor; }
         @Override public StreamingService expectedService() { return YouTube; }
         @Override public String expectedName() { return QUERY; }
         @Override public String expectedId() { return QUERY; }
@@ -230,7 +193,7 @@ public class YoutubeSearchExtractorTest {
             final ListExtractor.InfoItemsPage<InfoItem> initialPage = extractor().getInitialPage();
             // YouTube actually gives us an empty next page, but after that, no more pages.
             assertTrue(initialPage.hasNextPage());
-            final ListExtractor.InfoItemsPage<InfoItem> nextEmptyPage = extractor.getPage(initialPage.getNextPage());
+            final ListExtractor.InfoItemsPage<InfoItem> nextEmptyPage = extractor().getPage(initialPage.getNextPage());
             assertEquals(0, nextEmptyPage.getItems().size());
             assertEmptyErrors("Empty page has errors", nextEmptyPage.getErrors());
 
@@ -242,7 +205,7 @@ public class YoutubeSearchExtractorTest {
         @Test
         void duplicatedItemsCheck() throws Exception {
             YoutubeTestsUtils.ensureStateless();
-            NewPipe.init(DownloaderFactory.getDownloader(RESOURCE_PATH + "paging"));
+            InitNewPipeTest.initNewPipe(this.getClass(), "paging");
 
             final FilterItem item = DefaultSearchExtractorTest.getFilterItem(
                     YouTube, YoutubeFilters.ID_CF_MAIN_VIDEOS);
@@ -257,17 +220,13 @@ public class YoutubeSearchExtractorTest {
     }
 
     @Disabled("Known problem, see https://github.com/TeamNewPipe/NewPipeExtractor/issues/1274")
-    public static class MetaInfoTest extends DefaultSearchExtractorTest {
-        private static SearchExtractor extractor;
+    public static class MetaInfoTest extends DefaultSearchExtractorTest implements InitYoutubeTest {
         private static final String QUERY = "Covid";
 
-        @BeforeAll
-        public static void setUp() throws Exception {
-            YoutubeTestsUtils.ensureStateless();
-            NewPipe.init(DownloaderFactory.getDownloader(RESOURCE_PATH + "metaInfo"));
+        @Override
+        protected SearchExtractor createExtractor() throws Exception {
             final FilterItem item = getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_VIDEOS);
-            extractor = YouTube.getSearchExtractor(QUERY, singletonList(item), null);
-            extractor.fetchPage();
+            return YouTube.getSearchExtractor(QUERY, singletonList(item), null);
         }
 
         @Override public String expectedSearchString() { return QUERY; }
@@ -285,7 +244,6 @@ public class YoutubeSearchExtractorTest {
         }
         // testMoreRelatedItems is broken because a video has no duration shown
         @Test @Override public void testMoreRelatedItems() { }
-        @Override public SearchExtractor extractor() { return extractor; }
         @Override public StreamingService expectedService() { return YouTube; }
         @Override public String expectedName() { return QUERY; }
         @Override public String expectedId() { return QUERY; }
@@ -293,21 +251,15 @@ public class YoutubeSearchExtractorTest {
         @Override public String expectedOriginalUrlContains() throws Exception { return "youtube.com/results?search_query=" + QUERY; }
     }
 
-    public static class ChannelVerified extends DefaultSearchExtractorTest {
-        private static SearchExtractor extractor;
+    public static class ChannelVerified extends DefaultSearchExtractorTest implements InitYoutubeTest {
         private static final String QUERY = "bbc";
 
-        @BeforeAll
-        public static void setUp() throws Exception {
-            YoutubeTestsUtils.ensureStateless();
-            NewPipe.init(DownloaderFactory.getDownloader(RESOURCE_PATH + "verified"));
-
+        @Override
+        protected SearchExtractor createExtractor() throws Exception {
             final FilterItem item = getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_CHANNELS);
-            extractor = YouTube.getSearchExtractor(QUERY, singletonList(item), null);
-            extractor.fetchPage();
+            return YouTube.getSearchExtractor(QUERY, singletonList(item), null);
         }
 
-        @Override public SearchExtractor extractor() { return extractor; }
         @Override public StreamingService expectedService() { return YouTube; }
         @Override public String expectedName() { return QUERY; }
         @Override public String expectedId() { return QUERY; }
@@ -319,7 +271,7 @@ public class YoutubeSearchExtractorTest {
 
         @Test
         void testAtLeastOneVerified() throws IOException, ExtractionException {
-            final List<InfoItem> items = extractor.getInitialPage().getItems();
+            final List<InfoItem> items = extractor().getInitialPage().getItems();
             boolean verified = false;
             for (final InfoItem item : items) {
                 if (((ChannelInfoItem) item).isVerified()) {
@@ -332,20 +284,15 @@ public class YoutubeSearchExtractorTest {
         }
     }
 
-    public static class VideoUploaderAvatar extends DefaultSearchExtractorTest {
-        private static SearchExtractor extractor;
+    public static class VideoUploaderAvatar extends DefaultSearchExtractorTest implements InitYoutubeTest {
         private static final String QUERY = "sidemen";
 
-        @BeforeAll
-        public static void setUp() throws Exception {
-            YoutubeTestsUtils.ensureStateless();
-            NewPipe.init(DownloaderFactory.getDownloader(RESOURCE_PATH + "video_uploader_avatar"));
+        @Override
+        protected SearchExtractor createExtractor() throws Exception {
             final FilterItem item = getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_VIDEOS);
-            extractor = YouTube.getSearchExtractor(QUERY, singletonList(item), null);
-            extractor.fetchPage();
+            return YouTube.getSearchExtractor(QUERY, singletonList(item), null);
         }
 
-        @Override public SearchExtractor extractor() { return extractor; }
         @Override public StreamingService expectedService() { return YouTube; }
         @Override public String expectedName() { return QUERY; }
         @Override public String expectedId() { return QUERY; }
@@ -357,7 +304,7 @@ public class YoutubeSearchExtractorTest {
 
         @Test
         void testUploaderAvatars() throws IOException, ExtractionException {
-            extractor.getInitialPage()
+            extractor().getInitialPage()
                     .getItems()
                     .stream()
                     .filter(StreamInfoItem.class::isInstance)
@@ -367,20 +314,15 @@ public class YoutubeSearchExtractorTest {
         }
     }
 
-    public static class VideoDescription extends DefaultSearchExtractorTest {
-        private static SearchExtractor extractor;
+    public static class VideoDescription extends DefaultSearchExtractorTest implements InitYoutubeTest {
         private static final String QUERY = "44wLAzydRFU";
 
-        @BeforeAll
-        public static void setUp() throws Exception {
-            YoutubeTestsUtils.ensureStateless();
-            NewPipe.init(DownloaderFactory.getDownloader(RESOURCE_PATH + "video_description"));
+        @Override
+        protected SearchExtractor createExtractor() throws Exception {
             final FilterItem item = getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_VIDEOS);
-            extractor = YouTube.getSearchExtractor(QUERY, singletonList(item), null);
-            extractor.fetchPage();
+            return YouTube.getSearchExtractor(QUERY, singletonList(item), null);
         }
 
-        @Override public SearchExtractor extractor() { return extractor; }
         @Override public StreamingService expectedService() { return YouTube; }
         @Override public String expectedName() { return QUERY; }
         @Override public String expectedId() { return QUERY; }
@@ -392,7 +334,7 @@ public class YoutubeSearchExtractorTest {
 
         @Test
         void testVideoDescription() throws IOException, ExtractionException {
-            final List<InfoItem> items = extractor.getInitialPage().getItems();
+            final List<InfoItem> items = extractor().getInitialPage().getItems();
             assertNotNull(((StreamInfoItem) items.get(0)).getShortDescription());
         }
 
@@ -403,20 +345,15 @@ public class YoutubeSearchExtractorTest {
         }
     }
 
-    public static class ShortFormContent extends DefaultSearchExtractorTest {
-        private static SearchExtractor extractor;
+    public static class ShortFormContent extends DefaultSearchExtractorTest implements InitYoutubeTest {
         private static final String QUERY = "#shorts";
 
-        @BeforeAll
-        public static void setUp() throws Exception {
-            YoutubeTestsUtils.ensureStateless();
-            NewPipe.init(DownloaderFactory.getDownloader(RESOURCE_PATH + "shorts"));
+        @Override
+        protected SearchExtractor createExtractor() throws Exception {
             final FilterItem item = getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_VIDEOS);
-            extractor = YouTube.getSearchExtractor(QUERY, singletonList(item), null);
-            extractor.fetchPage();
+            return YouTube.getSearchExtractor(QUERY, singletonList(item), null);
         }
 
-        @Override public SearchExtractor extractor() { return extractor; }
         @Override public StreamingService expectedService() { return YouTube; }
         @Override public String expectedName() { return QUERY; }
         @Override public String expectedId() { return QUERY; }
@@ -428,7 +365,7 @@ public class YoutubeSearchExtractorTest {
 
         @Test
         void testShortFormContent() throws IOException, ExtractionException {
-            assertTrue(extractor.getInitialPage()
+            assertTrue(extractor().getInitialPage()
                     .getItems()
                     .stream()
                     .filter(StreamInfoItem.class::isInstance)
@@ -448,19 +385,14 @@ public class YoutubeSearchExtractorTest {
      * resources.
      * </p>
      */
-    public static class CrisisResources extends DefaultSearchExtractorTest {
-        private static SearchExtractor extractor;
+    public static class CrisisResources extends DefaultSearchExtractorTest implements InitYoutubeTest {
         private static final String QUERY = "suicide";
 
-        @BeforeAll
-        public static void setUp() throws Exception {
-            YoutubeTestsUtils.ensureStateless();
-            NewPipe.init(DownloaderFactory.getDownloader(RESOURCE_PATH + "crisis_resources"));
-            extractor = YouTube.getSearchExtractor(QUERY);
-            extractor.fetchPage();
+        @Override
+        protected SearchExtractor createExtractor() throws Exception {
+            return YouTube.getSearchExtractor(QUERY);
         }
 
-        @Override public SearchExtractor extractor() { return extractor; }
         @Override public StreamingService expectedService() { return YouTube; }
         @Override public String expectedName() { return QUERY; }
         @Override public String expectedId() { return QUERY; }

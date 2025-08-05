@@ -30,6 +30,8 @@ public final class SoundcloudChannelTabLinkHandlerFactory extends ListLinkHandle
             return "/sets";
         } else if (tab.equals(ChannelTabs.ALBUMS)) {
             return "/albums";
+        } else if (tab.equals(ChannelTabs.LIKES)) {
+            return "/likes";
         }
         throw new UnsupportedTabException(tab);
     }

@@ -1,12 +1,14 @@
 package org.schabi.newpipe.extractor.services.soundcloud;
 
-import org.junit.jupiter.api.BeforeAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.schabi.newpipe.extractor.ServiceList.SoundCloud;
+
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.schabi.newpipe.downloader.DownloaderTestImpl;
 import org.schabi.newpipe.extractor.ExtractorAsserts;
 import org.schabi.newpipe.extractor.MediaFormat;
-import org.schabi.newpipe.extractor.NewPipe;
 import org.schabi.newpipe.extractor.StreamingService;
 import org.schabi.newpipe.extractor.exceptions.GeographicRestrictionException;
 import org.schabi.newpipe.extractor.exceptions.SoundCloudGoPlusContentException;
@@ -22,11 +24,6 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.fail;
-import static org.schabi.newpipe.extractor.ServiceList.SoundCloud;
-
 public class SoundcloudStreamExtractorTest {
     private static final String SOUNDCLOUD = "https://soundcloud.com/";
 
@@ -35,20 +32,21 @@ public class SoundcloudStreamExtractorTest {
         private static final String UPLOADER = SOUNDCLOUD + "jessglynne";
         private static final int TIMESTAMP = 0;
         private static final String URL = UPLOADER + "/" + ID + "#t=" + TIMESTAMP;
-        private static StreamExtractor extractor;
 
-        @BeforeAll
-        public static void setUp() throws Exception {
-            NewPipe.init(DownloaderTestImpl.getInstance());
-            extractor = SoundCloud.getStreamExtractor(URL);
+        @Override
+        protected StreamExtractor createExtractor() throws Exception {
+            return SoundCloud.getStreamExtractor(URL);
+        }
+
+        @Override
+        protected void fetchExtractor(final StreamExtractor extractor) throws Exception {
             try {
-                extractor.fetchPage();
+                super.fetchExtractor(extractor);
             } catch (final GeographicRestrictionException e) {
                 // expected
             }
         }
 
-        @Override public StreamExtractor extractor() { return extractor; }
         @Override public StreamingService expectedService() { return SoundCloud; }
         @Override public String expectedName() { return "One Touch"; }
         @Override public String expectedId() { return "621612588"; }
@@ -89,14 +87,16 @@ public class SoundcloudStreamExtractorTest {
         private static final String UPLOADER = SOUNDCLOUD + "martinsolveig";
         private static final int TIMESTAMP = 0;
         private static final String URL = UPLOADER + "/" + ID + "#t=" + TIMESTAMP;
-        private static StreamExtractor extractor;
 
-        @BeforeAll
-        public static void setUp() throws Exception {
-            NewPipe.init(DownloaderTestImpl.getInstance());
-            extractor = SoundCloud.getStreamExtractor(URL);
+        @Override
+        protected StreamExtractor createExtractor() throws Exception {
+            return SoundCloud.getStreamExtractor(URL);
+        }
+
+        @Override
+        protected void fetchExtractor(final StreamExtractor extractor) throws Exception {
             try {
-                extractor.fetchPage();
+                super.fetchExtractor(extractor);
             } catch (final SoundCloudGoPlusContentException e) {
                 // expected
             }
@@ -111,7 +111,6 @@ public class SoundcloudStreamExtractorTest {
             super.testRelatedItems();
         }
 
-        @Override public StreamExtractor extractor() { return extractor; }
         @Override public StreamingService expectedService() { return SoundCloud; }
         @Override public String expectedName() { return "Places (feat. Ina Wroldsen)"; }
         @Override public String expectedId() { return "292479564"; }
@@ -141,54 +140,49 @@ public class SoundcloudStreamExtractorTest {
         @Override public String expectedCategory() { return "Dance"; }
     }
 
-    public static class CreativeCommonsPlaysWellWithOthers extends DefaultStreamExtractorTest {
-        private static final String ID = "plays-well-with-others-ep-2-what-do-an-army-of-ants-and-an-online-encyclopedia-have-in-common";
+    static class CreativeCommonsOpenMindsEp21 extends DefaultStreamExtractorTest {
+        private static final String ID = "open-minds-ep-21-dr-beth-harris-and-dr-steven-zucker-of-smarthistory";
         private static final String UPLOADER = SOUNDCLOUD + "wearecc";
         private static final int TIMESTAMP = 69;
         private static final String URL = UPLOADER + "/" + ID + "#t=" + TIMESTAMP;
-        private static StreamExtractor extractor;
 
-        @BeforeAll
-        public static void setUp() throws Exception {
-            NewPipe.init(DownloaderTestImpl.getInstance());
-            extractor = SoundCloud.getStreamExtractor(URL);
-            extractor.fetchPage();
+        @Override
+        protected StreamExtractor createExtractor() throws Exception {
+            return SoundCloud.getStreamExtractor(URL);
         }
 
-        @Override public StreamExtractor extractor() { return extractor; }
         @Override public StreamingService expectedService() { return SoundCloud; }
-        @Override public String expectedName() { return "Plays Well with Others, Ep 2: What Do an Army of Ants and an Online Encyclopedia Have in Common?"; }
-        @Override public String expectedId() { return "597253485"; }
+        @Override public String expectedName() { return "Open Minds, Ep 21: Dr. Beth Harris and Dr. Steven Zucker of Smarthistory"; }
+        @Override public String expectedId() { return "1356023209"; }
         @Override public String expectedUrlContains() { return UPLOADER + "/" + ID; }
         @Override public String expectedOriginalUrlContains() { return URL; }
 
         @Override public StreamType expectedStreamType() { return StreamType.AUDIO_STREAM; }
         @Override public String expectedUploaderName() { return "Creative Commons"; }
         @Override public String expectedUploaderUrl() { return UPLOADER; }
-        @Override public List<String> expectedDescriptionContains() { return Arrays.asList("Stigmergy is a mechanism of indirect coordination",
-                "All original content in Plays Well with Others is available under a Creative Commons BY license."); }
-        @Override public long expectedLength() { return 1400; }
+        @Override public List<String> expectedDescriptionContains() {
+            return Arrays.asList("Smarthistory is a center for public art history",
+                "experts who want to share their knowledge with learners around the world",
+                "Available for use under the CC BY 3.0 license"); }
+        @Override public long expectedLength() { return 1500; }
         @Override public long expectedTimestamp() { return TIMESTAMP; }
-        @Override public long expectedViewCountAtLeast() { return 27000; }
-        @Nullable @Override public String expectedUploadDate() { return "2019-03-28 13:36:18.000"; }
-        @Nullable @Override public String expectedTextualUploadDate() { return "2019-03-28 13:36:18"; }
-        @Override public long expectedLikeCountAtLeast() { return 25; }
+        @Override public long expectedViewCountAtLeast() { return 15000; }
+        @Nullable @Override public String expectedUploadDate() { return "2022-10-03 18:49:49.000"; }
+        @Nullable @Override public String expectedTextualUploadDate() { return "2022-10-03 18:49:49"; }
+        @Override public long expectedLikeCountAtLeast() { return 10; }
         @Override public long expectedDislikeCountAtLeast() { return -1; }
+        @Override public boolean expectedHasRelatedItems() { return false; }
         @Override public boolean expectedHasVideoStreams() { return false; }
         @Override public boolean expectedHasSubtitles() { return false; }
         @Override public boolean expectedHasFrames() { return false; }
         @Override public int expectedStreamSegmentsCount() { return 0; }
         @Override public String expectedLicence() { return "cc-by"; }
-        @Override public String expectedCategory() { return "Podcast"; }
-        @Override public List<String> expectedTags() {
-            return Arrays.asList("ants", "collaboration", "creative commons", "stigmergy", "storytelling", "wikipedia");
-        }
 
         @Override
         @Test
         public void testAudioStreams() throws Exception {
             super.testAudioStreams();
-            final List<AudioStream> audioStreams = extractor.getAudioStreams();
+            final List<AudioStream> audioStreams = extractor().getAudioStreams();
             assertEquals(3, audioStreams.size()); // 2 MP3 streams (1 progressive, 1 HLS) and 1 OPUS
             audioStreams.forEach(audioStream -> {
                 final DeliveryMethod deliveryMethod = audioStream.getDeliveryMethod();
@@ -205,7 +199,7 @@ public class SoundcloudStreamExtractorTest {
                     if (deliveryMethod == DeliveryMethod.PROGRESSIVE_HTTP) {
                         // Assert it's a MP3 128 kbps media URL which comes from a progressive
                         // SoundCloud CDN
-                        ExtractorAsserts.assertContains("-media.sndcdn.com/bKOA7Pwbut93.128.mp3",
+                        ExtractorAsserts.assertContains("-media.sndcdn.com/cyaz0oXJYbdt.128.mp3",
                                 mediaUrl);
                     } else if (deliveryMethod == DeliveryMethod.HLS) {
                         // Assert it's a MP3 128 kbps media HLS playlist URL which comes from an HLS

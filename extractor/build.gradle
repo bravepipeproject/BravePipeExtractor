@@ -1,6 +1,7 @@
 plugins {
-    id 'checkstyle'
-    id 'com.squareup.wire' version '4.5.2'
+    id "checkstyle"
+    id "com.google.protobuf" version "0.9.5"
+    id "com.squareup.wire" version "4.5.2"
 }
 
 test {
@@ -20,9 +21,11 @@ checkstyle {
 }
 
 checkstyleMain
-        // exclude the wire generated youtube protobuf files
+        // brave exclude the wire generated youtube protobuf files
         .exclude ('org/schabi/newpipe/extractor/services/youtube/search/filter/protobuf/')
         .exclude ('com/github/bravenewpipe/json2java4nanojson')
+        // upstream: Exclude Protobuf generated files from Checkstyle
+        .exclude ("org/schabi/newpipe/extractor/services/youtube/protos")
 
 wire {
     java {
@@ -35,14 +38,16 @@ checkstyleTest {
 
 ext {
     rhinoVersion = '1.8.0'
+    protobufVersion = '4.31.1'
 }
 
 dependencies {
     implementation project(':timeago-parser')
 
     implementation "com.github.TeamNewPipe:nanojson:$nanojsonVersion"
-    implementation 'org.jsoup:jsoup:1.19.1'
+    implementation 'org.jsoup:jsoup:1.21.1'
     implementation "com.google.code.findbugs:jsr305:$jsr305Version"
+    implementation "com.google.protobuf:protobuf-javalite:$protobufVersion"
 
     implementation "org.mozilla:rhino:$rhinoVersion"
     implementation "org.mozilla:rhino-engine:$rhinoVersion"
@@ -57,5 +62,21 @@ dependencies {
 
     testImplementation "com.squareup.okhttp3:okhttp:4.12.0"
     testImplementation "com.squareup.okhttp3:okhttp-urlconnection:4.12.0"
-    testImplementation 'com.google.code.gson:gson:2.12.1'
+    testImplementation 'com.google.code.gson:gson:2.13.1'
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:$protobufVersion"
+    }
+
+    generateProtoTasks {
+        all().configureEach { task ->
+            task.builtins {
+                java {
+                    option "lite"
+                }
+            }
+        }
+    }
 }

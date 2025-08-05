@@ -1,7 +1,7 @@
 package org.schabi.newpipe.extractor.services.youtube.extractors;
 
 import static org.schabi.newpipe.extractor.services.youtube.YoutubeParsingHelper.DISABLE_PRETTY_PRINT_PARAMETER;
-import static org.schabi.newpipe.extractor.services.youtube.YoutubeParsingHelper.getTextFromObjectOrThrow;
+import static org.schabi.newpipe.extractor.services.youtube.YoutubeParsingHelper.getTextFromObject;
 import static org.schabi.newpipe.extractor.services.youtube.YoutubeParsingHelper.getValidJsonResponseBody;
 import static org.schabi.newpipe.extractor.services.youtube.YoutubeParsingHelper.getYoutubeMusicClientVersion;
 import static org.schabi.newpipe.extractor.services.youtube.YoutubeParsingHelper.getYoutubeMusicHeaders;
@@ -40,6 +40,8 @@ import javax.annotation.Nullable;
 
 public class YoutubeMusicSearchExtractor extends SearchExtractor {
     private JsonObject initialData;
+
+    private List<JsonObject> cachedItemSectionRendererContents;
 
     public YoutubeMusicSearchExtractor(final StreamingService service,
                                        final SearchQueryHandler linkHandler) {
@@ -107,7 +109,11 @@ public class YoutubeMusicSearchExtractor extends SearchExtractor {
     }
 
     private List<JsonObject> getItemSectionRendererContents() {
-        return initialData
+        if (cachedItemSectionRendererContents != null) {
+            return cachedItemSectionRendererContents;
+        }
+
+        cachedItemSectionRendererContents = initialData
                 .getObject("contents")
                 .getObject("tabbedSearchResultsRenderer")
                 .getArray("tabs")
@@ -125,6 +131,7 @@ public class YoutubeMusicSearchExtractor extends SearchExtractor {
                         .getArray("contents")
                         .getObject(0))
                 .collect(Collectors.toList());
+        return cachedItemSectionRendererContents;
     }
 
     @Nonnull
@@ -133,14 +140,16 @@ public class YoutubeMusicSearchExtractor extends SearchExtractor {
         for (final JsonObject obj : getItemSectionRendererContents()) {
             final JsonObject didYouMeanRenderer = obj
                     .getObject("didYouMeanRenderer");
-            final JsonObject showingResultsForRenderer = obj
-                    .getObject("showingResultsForRenderer");
 
             if (!didYouMeanRenderer.isEmpty()) {
-                return getTextFromObjectOrThrow(
-                        didYouMeanRenderer.getObject("correctedQuery"),
-                        "getting search suggestion from didYouMeanRenderer.correctedQuery");
-            } else if (!showingResultsForRenderer.isEmpty()) {
+                return getTextFromObject(didYouMeanRenderer.getObject("correctedQuery"));
+            }
+
+            // NOTE: As of 2025-07 "showing results for ..." doesn't seem to be returned by
+            // the backend anymore, however the code is still present in the JS frontend.
+            final JsonObject showingResultsForRenderer = obj
+                .getObject("showingResultsForRenderer");
+            if (!showingResultsForRenderer.isEmpty()) {
                 return JsonUtils.getString(showingResultsForRenderer,
                         "correctedQueryEndpoint.searchEndpoint.query");
             }
