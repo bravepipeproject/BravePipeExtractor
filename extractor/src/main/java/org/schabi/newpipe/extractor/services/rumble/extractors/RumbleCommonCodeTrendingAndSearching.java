@@ -29,23 +29,11 @@ public class RumbleCommonCodeTrendingAndSearching {
         // If numberOfCollectedItems is 0 than we have no results at all
         // -> assume no more pages
         if (numberOfCollectedItems > 0) {
-            final String currentPageStrNumber =
-                    doc.getElementsByClass("paginator--link--current").attr("aria-label");
-            final boolean hasMorePages;
-            if (currentPageStrNumber.isEmpty()) {
-                hasMorePages = false;
-            } else {
-                // check if we are on the last page of available search results
-                final int currentPageIsLastPageIfGreaterThanZero =
-                        doc.getElementsByClass("paginator--link").last()
-                                .getElementsByClass("paginator--link paginator--link--current")
-                                .size();
-                hasMorePages = !(currentPageIsLastPageIfGreaterThanZero > 0);
-            }
-
+            final Element nextLink = doc.selectFirst("link[rel=next]");
+            final String nextPageUrl = nextLink != null ? nextLink.attr("href") : null;
+            final boolean hasMorePages = nextPageUrl != null && !nextPageUrl.isEmpty();
             if (hasMorePages) {
-                int currentPageNumber = Integer.parseInt(currentPageStrNumber);
-                nextPage = new Page(urlPrefix + ++currentPageNumber);
+                nextPage = new Page(nextPageUrl);
             }
         }
         return nextPage;
