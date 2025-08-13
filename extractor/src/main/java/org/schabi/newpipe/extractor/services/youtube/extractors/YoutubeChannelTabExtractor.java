@@ -67,6 +67,8 @@ public class YoutubeChannelTabExtractor extends ChannelTabExtractor {
             return "EghyZWxlYXNlc_IGBQoDsgEA";
         } else if (type.equals(ChannelTabs.PLAYLISTS)) {
             return "EglwbGF5bGlzdHPyBgQKAkIA";
+        } else if (type.equals(ChannelTabs.PODCASTS)) {
+            return "Eghwb2RjYXN0c_IGBQoDugEA";
         }
         throw new ParsingException("Unsupported channel tab: " + type);
     }
@@ -288,6 +290,13 @@ public class YoutubeChannelTabExtractor extends ChannelTabExtractor {
             } else if (richItem.has("playlistRenderer")) {
                 commitPlaylist(collector, richItem.getObject("playlistRenderer"),
                         channelVerifiedStatus, channelName, channelUrl);
+            } else if (richItem.has("lockupViewModel")) { // added by BravePipe for podcasts
+                final JsonObject lockupViewModel = richItem.getObject("lockupViewModel");
+                final String contentType = lockupViewModel.getString("contentType");
+                if ("LOCKUP_CONTENT_TYPE_PODCAST".equals(contentType)) {
+                    commitPlaylistLockup(collector, lockupViewModel, channelVerifiedStatus,
+                            channelName, channelUrl);
+                }
             }
         } else if (item.has("gridVideoRenderer")) {
             commitVideo(collector, timeAgoParser, item.getObject("gridVideoRenderer"),

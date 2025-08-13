@@ -5,6 +5,7 @@ import static org.schabi.newpipe.extractor.search.filter.LibraryStringIds.CHANNE
 import static org.schabi.newpipe.extractor.search.filter.LibraryStringIds.CHANNEL_TAB_LIKES;
 import static org.schabi.newpipe.extractor.search.filter.LibraryStringIds.CHANNEL_TAB_LIVESTREAMS;
 import static org.schabi.newpipe.extractor.search.filter.LibraryStringIds.CHANNEL_TAB_PLAYLISTS;
+import static org.schabi.newpipe.extractor.search.filter.LibraryStringIds.CHANNEL_TAB_PODCASTS;
 import static org.schabi.newpipe.extractor.search.filter.LibraryStringIds.CHANNEL_TAB_SHORTS;
 import static org.schabi.newpipe.extractor.search.filter.LibraryStringIds.CHANNEL_TAB_TRACKS;
 import static org.schabi.newpipe.extractor.search.filter.LibraryStringIds.CHANNEL_TAB_VIDEOS;
@@ -23,6 +24,7 @@ public final class ChannelTabs {
     public static final int ID_PLAYLISTS = 5;
     public static final int ID_ALBUMS = 6;
     public static final int ID_LIKES = 7;
+    public static final int ID_PODCASTS = 8;
 
     public static final FilterItem VIDEOS = new FilterItem(ID_VIDEOS, CHANNEL_TAB_VIDEOS);
     public static final FilterItem TRACKS = new FilterItem(ID_TRACKS, CHANNEL_TAB_TRACKS);
@@ -33,6 +35,7 @@ public final class ChannelTabs {
     public static final FilterItem PLAYLISTS = new FilterItem(ID_PLAYLISTS, CHANNEL_TAB_PLAYLISTS);
     public static final FilterItem ALBUMS = new FilterItem(ID_ALBUMS, CHANNEL_TAB_ALBUMS);
     public static final FilterItem LIKES = new FilterItem(ID_LIKES, CHANNEL_TAB_LIKES);
+    public static final FilterItem PODCASTS = new FilterItem(ID_PODCASTS, CHANNEL_TAB_PODCASTS);
 
     private ChannelTabs() {
     }

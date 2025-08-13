@@ -452,6 +452,9 @@ public class YoutubeChannelExtractor extends ChannelExtractor {
                             case "playlists":
                                 addNonVideosTab.accept(ChannelTabs.PLAYLISTS);
                                 break;
+                            case "podcasts":
+                                addNonVideosTab.accept(ChannelTabs.PODCASTS);
+                                break;
                             default:
                                 // Unsupported channel tab, ignore it
                                 break;
@@ -481,6 +484,7 @@ public class YoutubeChannelExtractor extends ChannelExtractor {
         addTab.accept(ChannelTabs.VIDEOS);
         addTab.accept(ChannelTabs.SHORTS);
         addTab.accept(ChannelTabs.LIVESTREAMS);
+        addTab.accept(ChannelTabs.PODCASTS);
         return Collections.unmodifiableList(tabs);
     }
 
