@@ -9,7 +9,7 @@ public final class RumbleChannelParsingHelper {
 
     public static String getChannelId(final Element doc) {
         final Element idData =
-                doc.select("div[class~=(listing|channel)-header--buttons] div").first();
+                doc.select("div.js-media-subscribe-and-notify").first();
         return getChannelIdAlreadySelected(idData);
     }
 
