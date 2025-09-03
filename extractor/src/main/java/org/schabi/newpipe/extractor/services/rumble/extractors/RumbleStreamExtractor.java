@@ -374,11 +374,15 @@ public class RumbleStreamExtractor extends StreamExtractor {
                             videoUrl,
                             metadata.getInt(bitrateJsonKey)));
                 } else { // video streams
-                    if (getStreamType() != StreamType.LIVE_STREAM && res.equals("auto")) {
-                        // 'auto' provides a master HLS playlist but we only use it in
-                        // case there are no other video streams available
-                        masterPlayListUrl = videoUrl; // store for possible later usse
-                        // -> skip it for now
+                    if (res.equals("auto")) {
+                        if (getStreamType() == StreamType.LIVE_STREAM) {
+                            extractStreamsFromMasterHlsPlaylist(downloader, videoUrl, videoStreamsList);
+                        } else {
+                            // 'auto' provides a master HLS playlist but we only use it in
+                            // case there are no other video streams available
+                            masterPlayListUrl = videoUrl; // store for possible later use
+                            // -> skip it for now
+                        }
                         continue;
                     }
 
