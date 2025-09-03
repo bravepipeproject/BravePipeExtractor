@@ -55,6 +55,7 @@ dependencies {
 
     implementation "org.mozilla:rhino:$rhinoVersion"
     implementation "org.mozilla:rhino-engine:$rhinoVersion"
+    implementation 'com.github.evermind-zz:hlsdownloader:1.0.0'
 
     checkstyle "com.puppycrawl.tools:checkstyle:$checkstyleVersion"
 

@@ -1,5 +1,7 @@
 package org.schabi.newpipe.extractor.services.rumble.extractors;
 
+import com.github.evermindzz.hlsdownloader.common.Fetcher;
+import com.github.evermindzz.hlsdownloader.parser.HlsParser;
 import com.grack.nanojson.JsonObject;
 import com.grack.nanojson.JsonParser;
 import com.grack.nanojson.JsonParserException;
@@ -40,7 +42,11 @@ import org.schabi.newpipe.extractor.utils.Utils;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -148,6 +154,28 @@ public class RumbleStreamExtractor extends StreamExtractor {
         }
 
         return ageLimit;
+    }
+
+    public static class FetchWithDownloaderImpl implements Fetcher {
+        private final Downloader downloader;
+
+        public FetchWithDownloaderImpl(final Downloader downloader) {
+            this.downloader = downloader;
+        }
+
+        private InputStream stringToInputStream(String input) {
+            byte[] bytes = input.getBytes(StandardCharsets.UTF_8);
+            return new ByteArrayInputStream(bytes);
+        }
+
+        public InputStream fetchContent(URI uri) throws IOException {
+            try {
+                final Response response = downloader.get(uri.toString());
+                return stringToInputStream(response.responseBody());
+            } catch (ReCaptchaException e) {
+                throw new IOException(e);
+            }
+        }
     }
 
     @Override
@@ -292,13 +320,15 @@ public class RumbleStreamExtractor extends StreamExtractor {
         return videoStreams;
     }
 
-    private void extractStreams() throws ExtractionException {
+    private void extractStreams(final Downloader downloader) throws ExtractionException {
 
         final List<AudioStream> audioStreamsList = new ArrayList<>();
         final List<VideoStream> videoStreamsList = new ArrayList<>();
         final String videoAlternativesKey = "ua";
         final String videoMetaKey = "meta";
         final String videoUrlKey = "url";
+
+        String masterPlayListUrl = null;
 
         final Set<String> formatKeys =
                 embedJsonStreamInfoObj.getObject(videoAlternativesKey).keySet();
@@ -345,10 +375,10 @@ public class RumbleStreamExtractor extends StreamExtractor {
                             metadata.getInt(bitrateJsonKey)));
                 } else { // video streams
                     if (getStreamType() != StreamType.LIVE_STREAM && res.equals("auto")) {
-                        // 'auto' provides a master HLS playlist but
-                        // we do not support automatic bitrate changes and
-                        // cannot download them.
-                        // -> skip it
+                        // 'auto' provides a master HLS playlist but we only use it in
+                        // case there are no other video streams available
+                        masterPlayListUrl = videoUrl; // store for possible later usse
+                        // -> skip it for now
                         continue;
                     }
 
@@ -367,6 +397,15 @@ public class RumbleStreamExtractor extends StreamExtractor {
         }
 
         videoStreams = videoStreamsList;
+
+        if (videoStreams.isEmpty() && masterPlayListUrl != null) {
+            // Is only called if there are no "ua" streams (mp4/webm/tar) found.
+            // In this case we fall back to parsing the "auto" stream entry.
+            // The "auto" entry points to an HLS master playlist, so we need to
+            // fetch and parse it here in order to extract the available HLS variant playlists.
+            extractStreamsFromMasterHlsPlaylist(downloader, masterPlayListUrl, videoStreamsList);
+        }
+
         // - Some videos have only HLS video streams but audio as http progressive.
         // - BravePipe/NewPipe switches to an audio only stream for background (if available)
         //   -> problem is it starts from the beginning
@@ -374,6 +413,77 @@ public class RumbleStreamExtractor extends StreamExtractor {
         //      so BravePipe/NewPipe uses the video stream also for background
         // audioStreams = audioStreamsList.isEmpty() ? Collections.emptyList() : audioStreamsList;
         audioStreams = Collections.emptyList();
+    }
+
+    /**
+     *  Extract available HLS variant playlists as streams from master HLS playlist.
+     *
+     * @param downloader        the downloader instance
+     * @param hlsMasterPlaylist URL of the HLS master playlist
+     * @param videoStreamsList  the video stream list to add found streams
+     */
+    private void extractStreamsFromMasterHlsPlaylist(
+            final Downloader downloader,
+            final String hlsMasterPlaylist,
+            final List<VideoStream> videoStreamsList) {
+        try {
+            final HlsParser parser = new HlsParser(
+                    variants -> {
+                        insertVariantsIntoVideoStreams(variants, videoStreamsList);
+
+                        // this will exit the parse function early with a nullpointer
+                        // exception. This is what we want and we catch it below.
+                        // HLSParser() should allow null to be a valid choice and exit
+                        // early - but until that may get fixed we go this route.
+                        return null;
+                    },
+                    new FetchWithDownloaderImpl(downloader),
+                    false
+            );
+
+            try {
+                parser.parse(new URI(hlsMasterPlaylist));
+            } catch (final NullPointerException ignored) {
+                // expect to throw a nullpointer and we ignore it
+            }
+        } catch (final Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    private void insertVariantsIntoVideoStreams(
+            List<HlsParser.VariantStream> variants,
+            List<VideoStream> videoStreamsList) {
+        for (final HlsParser.VariantStream stream : variants) {
+            // hls only provides bandwidth so the bitrate is lower
+            // a simple tests shows that the bitrate is approx. 15% less
+            final float bandwidth2bitrateFactor = 0.85f;
+
+            final URI playlistUrl = stream.getUri();
+            if (playlistUrl == null) {
+                continue;
+            }
+            final int bitrate = (int)(stream.getBandwidth() * bandwidth2bitrateFactor);
+            final String actualRes = getHeight(stream.getResolution());
+
+            final String bitrateString = "@" + bitrate/1000 + "k";
+            final VideoStream videoStream = createVideoStream(
+                    "hls",
+                    playlistUrl.toString(),
+                    actualRes + (!bitrateString.isBlank() ? "p" + bitrateString : "")
+            );
+            videoStream.braveSetBitrate(bitrate);
+            videoStreamsList.add(videoStream);
+        }
+    }
+
+    private String getHeight(final String res) {
+        String[] parts = res.split("x");
+
+        if (parts.length == 2) {
+            return parts[1];
+        }
+        return null;
     }
 
     private AudioStream createAudioStream(
@@ -430,8 +540,11 @@ public class RumbleStreamExtractor extends StreamExtractor {
     @Override
     public StreamType getStreamType() {
         final String videoLiveStreamKey = "live";
+        // There is actual a "meta" : { "live" : live } json entry next to the hls/auto tag,
+        // but that indication is not always a live stream:: shortly after a live stream just
+        // has ended this flag is still set but it is no longer a live stream so we have to
+        // ignore it. So we rely on the global entry: '1' is also assumed live stream.
         final Number isLive = embedJsonStreamInfoObj.getNumber(videoLiveStreamKey);
-        // '1' is also assumed live stream. TODO check if that is true
         final boolean isLiveStream = (isLive.intValue() == 1 || isLive.intValue() == 2);
         return isLiveStream ? StreamType.LIVE_STREAM : StreamType.VIDEO_STREAM;
     }
@@ -487,7 +600,7 @@ public class RumbleStreamExtractor extends StreamExtractor {
         //Document doc = Jsoup.parse(response.responseBody(), getUrl());
         try {
             embedJsonStreamInfoObj = JsonParser.object().from(response2.responseBody());
-            extractStreams();
+            extractStreams(downloader);
         } catch (final JsonParserException e) {
             e.printStackTrace();
             throw new ParsingException("Could not read json from: " + queryUrl);
