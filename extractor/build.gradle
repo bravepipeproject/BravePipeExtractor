@@ -1,7 +1,7 @@
 plugins {
     id "checkstyle"
     id "com.google.protobuf" version "0.9.5"
-    id "com.squareup.wire" version "4.5.2"
+    id "com.squareup.wire" version "5.3.11"
 }
 
 test {
