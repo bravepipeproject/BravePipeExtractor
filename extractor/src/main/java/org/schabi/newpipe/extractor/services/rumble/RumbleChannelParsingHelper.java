@@ -7,9 +7,13 @@ public final class RumbleChannelParsingHelper {
     private RumbleChannelParsingHelper() {
     }
 
-    public static String getChannelId(final Element doc) {
-        final Element idData =
-                doc.select("div.js-media-subscribe-and-notify").first();
+    public static String getChannelId(final Element doc) throws ParsingException {
+        final Element idData = RumbleParsingHelper.extractSafely(true,
+                "could not determine the channel Id",
+                () -> doc.selectFirst("[data-slug][data-type]")
+        );
+
+        // java codechecker is wrong: if idData is null this code will not be executed.
         return getChannelIdAlreadySelected(idData);
     }
 

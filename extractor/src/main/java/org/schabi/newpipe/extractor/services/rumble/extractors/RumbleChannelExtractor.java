@@ -78,10 +78,7 @@ public class RumbleChannelExtractor extends ChannelExtractor {
     @Nonnull
     @Override
     public String getId() throws ParsingException {
-        final String channelId = RumbleParsingHelper.extractSafely(true,
-                "Could not get channel id",
-                () -> RumbleChannelParsingHelper.getChannelId(doc));
-        return channelId;
+        return RumbleChannelParsingHelper.getChannelId(doc);
     }
 
     @Nonnull
