@@ -101,13 +101,6 @@ public final class RumbleParsingHelper {
         }
     }
 
-    /**
-     * interface for {@link #extractSafely} extractor function
-     */
-    public interface ExtractFunction {
-        String run();
-    }
-
     public static String totalMessMethodToGetUploaderThumbnailUrl(final String classStr,
                                                                   final Document doc)
             throws ParsingException {
@@ -134,7 +127,7 @@ public final class RumbleParsingHelper {
      */
     public static String extractThumbnail(final Document document,
                                           final String classStr,
-                                          final ExtractFunction function) throws ParsingException {
+                                          final Callable<String> function) throws ParsingException {
 
         // special case there is only a letter and no image as user thumbnail
         if (classStr.contains("user-image--letter")) {
@@ -142,7 +135,12 @@ public final class RumbleParsingHelper {
             return null;
         }
 
-        final String thumbIdentifier = function.run();
+        final String thumbIdentifier;
+        try {
+            thumbIdentifier = function.call();
+        } catch (final Exception e) {
+            throw new ParsingException(e.getMessage(), e);
+        }
         if (thumbIdentifier == null) {
             return null;
         }
