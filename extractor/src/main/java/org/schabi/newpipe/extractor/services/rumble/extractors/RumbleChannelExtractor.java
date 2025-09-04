@@ -58,7 +58,7 @@ public class RumbleChannelExtractor extends ChannelExtractor {
         checkIfChannelIsAvailable(response);
         final String about_link = RumbleParsingHelper.extractSafely(false,
             "",
-            () -> doc.select("div.channel-subheader--menu a[href*='about']").first().attr("href")
+            () -> doc.selectFirst("[href*='about']").attr("href")
         );
         if (null != about_link) {
             about = Jsoup.parse(getDownloader().get(getService().getBaseUrl() + about_link).responseBody());
