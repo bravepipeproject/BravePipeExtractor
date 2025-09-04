@@ -11,6 +11,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -72,21 +74,22 @@ public final class RumbleParsingHelper {
     /**
      * @param shouldThrowOnError if true a ParsingException is thrown on error
      * @param msg                in case of Exception the error message that is passed
-     * @param function           the function that extract the desired string
+     * @param callable           the function that extract the desired string
      * @return the extracted string or null if shouldThrowOnError is set to false
      * @throws ParsingException
      */
-    public static String extractSafely(final boolean shouldThrowOnError, final String msg,
-                                       final ExtractFunction function) throws ParsingException {
-        String retValue = null;
+    public static <T> T extractSafely(
+            final boolean shouldThrowOnError,
+            final String msg,
+            final Callable<T> callable) throws ParsingException {
         try {
-            retValue = function.run();
+            return Objects.requireNonNull(callable.call());
         } catch (final Exception e) {
             if (shouldThrowOnError) {
                 throw new ParsingException(msg + ": " + e);
             }
         }
-        return retValue;
+        return null;
     }
 
     @Nullable
