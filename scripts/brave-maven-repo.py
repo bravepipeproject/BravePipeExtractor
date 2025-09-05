@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 # License: GPL_v3
 # Author: evermind
-# Version: 1.0.0
+# Version: 1.1.0
 #
 # Changelog:
 # - v1.0.0 (20250808):
 #   * Initial version
+# - v1.1.0 (20250904):
+#   * Added options --clean-m2 --overwrite
+#   * Added option --custom-tag to override git tag detection
 
 """
 This script automates the version update and local Maven publishing process
@@ -40,6 +43,7 @@ import signal
 import sys
 import tarfile
 import tempfile
+import argparse
 from pathlib import Path
 from threading import Lock
 
@@ -55,12 +59,17 @@ DAEMON_PID_FILE = ".gradle-daemon-pid"
 PROJECT_GROUP = "com.github.bravepipeproject"
 ROOT_PROJECT_NAME = "BravePipeExtractor"
 
+ARGS = None  # global parsed args
+
 def get_git_tag():
+    if ARGS and ARGS.custom_tag:
+        print(f"🏷  Using custom tag from CLI: {ARGS.custom_tag}")
+        return ARGS.custom_tag
     try:
         tag = subprocess.check_output(["git", "describe", "--tags", "--abbrev=0"], text=True).strip()
         return tag
     except subprocess.CalledProcessError:
-        raise RuntimeError("❌ Could not determine current Git tag.")
+        raise RuntimeError("❌ Could not determine current Git tag (and no --custom-tag provided).")
 
 def update_build_gradle(tag):
     content = BUILD_FILE.read_text()
@@ -105,10 +114,14 @@ def stop_own_gradle_daemon():
         subprocess.run([GRADLE_BIN, "--stop"])
         Path(DAEMON_PID_FILE).unlink(missing_ok=True)
 
-def backup_m2_repo():
+def backup_m2_repo(clean=False):
     if M2_REPO.exists():
-        print(f"📁 Moving existing {M2_REPO} to {M2_BACKUP}")
-        shutil.move(M2_REPO, M2_BACKUP)
+        if clean:
+            print(f"⚠️ Deleting existing {M2_REPO}")
+            shutil.rmtree(M2_REPO)
+        else:
+            print(f"📁 Moving existing {M2_REPO} to {M2_BACKUP}")
+            shutil.move(M2_REPO, M2_BACKUP)
     M2_REPO.mkdir(parents=True, exist_ok=True)
 
 def restore_m2_repo():
@@ -122,7 +135,7 @@ def restore_m2_repo():
         else:
             print(f"❌ Error: {M2_REPO} already exists. Cannot restore from {M2_BACKUP}, please look manually")
     else:
-        print(f"❌ Error: {M2_BACKUP} does not exists. Cannot restore. Thats bad")
+        print(f"ℹ️ No original Maven repo backup found – skipping restore")
 
 def publish_projects():
     for project in PROJECTS:
@@ -182,7 +195,8 @@ def cleanup_and_exit(signum=None, frame=None):
 
         try:
             restore_m2_repo()
-            create_repo_tarball(MAVEN_REPO_TEMP, MAVEN_REPO_TEMP)
+            if not (ARGS and ARGS.no_tarball):
+                create_repo_tarball(MAVEN_REPO_TEMP, MAVEN_REPO_TEMP)
         except Exception as e:
             print(f"❗ Failed to restore Maven repo: {e}")
 
@@ -199,20 +213,45 @@ signal.signal(signal.SIGINT, cleanup_and_exit)   # Ctrl+C
 signal.signal(signal.SIGTERM, cleanup_and_exit)  # kill <pid>
 
 def main():
+    global ARGS
+    parser = argparse.ArgumentParser(description="Brave Maven Repo Builder")
+    parser.add_argument("--write-to-current-m2", action="store_true",
+                        help="Write artifacts directly to current ~/.m2/repository (no backup/restore)")
+    parser.add_argument("--clean-m2", action="store_true",
+                        help="Delete existing ~/.m2/repository before publishing")
+    parser.add_argument("--no-tarball", action="store_true",
+                        help="Do not create a tarball of the published Maven repository")
+    parser.add_argument("--custom-tag", type=str,
+                        help="Use a custom tag instead of detecting from git")
+    ARGS = parser.parse_args()
 
-    if Path(MAVEN_REPO_TEMP).exists():
-        print(f"📦 {MAVEN_REPO_TEMP} already exists please remove first")
-        return 1
+    if not ARGS.write_to_current_m2 and Path(MAVEN_REPO_TEMP).exists():
+        if ARGS.clean_m2:
+            print(f"⚠️ Removing old {MAVEN_REPO_TEMP}")
+            shutil.rmtree(MAVEN_REPO_TEMP)
+        else:
+            print(f"📦 {MAVEN_REPO_TEMP} already exists – remove first or use --clean-m2")
+            return 1
+
     try:
         tag = get_git_tag()
         print(f"🏷  Using Git tag: {tag}")
         update_build_gradle(tag)
         update_settings_gradle()
-        backup_m2_repo()
+        if ARGS.write_to_current_m2:
+            print("📝 Writing directly into current ~/.m2/repository")
+        else:
+            backup_m2_repo(clean=ARGS.clean_m2)
         start_gradle_daemon()
         publish_projects()
     finally:
-        cleanup_and_exit()
+        if not ARGS.write_to_current_m2:
+            cleanup_and_exit()
+        else:
+            try:
+                stop_own_gradle_daemon()
+            except Exception as e:
+                print(f"❗ Failed to stop Gradle daemon: {e}")
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
