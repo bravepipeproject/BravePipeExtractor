@@ -1,4 +1,4 @@
-package org.schabi.newpipe.extractor.services.rumble.extractor;
+package org.schabi.newpipe.extractor.services.rumble.extractors;
 
 import org.jsoup.nodes.Element;
 
@@ -36,13 +36,12 @@ public class RumbleCommentsInfoItemExtractor implements CommentsInfoItemExtracto
 
     @Override
     public int getLikeCount() throws ParsingException {
-        return Integer.parseInt(element.selectFirst("div.rumbles-vote span.rumbles-count").text());
+        return Integer.parseInt(getTextualLikeCount());
     }
 
     @Override
     public String getTextualLikeCount() throws ParsingException {
-        return element.selectFirst("div.rumbles-vote span.rumbles-count").text() + " " +
-                element.selectFirst("div.rumbles-vote span.rumbles-unit").text();
+        return element.selectFirst("div.rumbles-vote span.rumbles-up-votes").text();
     }
 
     @Override

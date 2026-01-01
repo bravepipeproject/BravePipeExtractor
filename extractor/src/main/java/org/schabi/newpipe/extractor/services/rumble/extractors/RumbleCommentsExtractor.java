@@ -7,7 +7,6 @@ import com.grack.nanojson.JsonParserException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
 import org.schabi.newpipe.extractor.NewPipe;
@@ -17,13 +16,9 @@ import org.schabi.newpipe.extractor.comments.CommentsExtractor;
 import org.schabi.newpipe.extractor.comments.CommentsInfoItem;
 import org.schabi.newpipe.extractor.comments.CommentsInfoItemsCollector;
 import org.schabi.newpipe.extractor.downloader.Downloader;
-import org.schabi.newpipe.extractor.downloader.Response;
 import org.schabi.newpipe.extractor.exceptions.ExtractionException;
-import org.schabi.newpipe.extractor.exceptions.ParsingException;
 import org.schabi.newpipe.extractor.linkhandler.ListLinkHandler;
-import org.schabi.newpipe.extractor.services.rumble.extractor.RumbleCommentsInfoItemExtractor;
 import org.schabi.newpipe.extractor.services.rumble.RumbleParsingHelper;
-import org.schabi.newpipe.extractor.utils.JsonUtils;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -32,8 +27,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import static org.schabi.newpipe.extractor.NewPipe.getDownloader;
 
 public class RumbleCommentsExtractor extends CommentsExtractor {
     private final int maxCommentsPerPage = 15;
