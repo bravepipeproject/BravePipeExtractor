@@ -53,9 +53,7 @@ public class RumbleChannelExtractor extends ChannelExtractor {
     @Override
     public void onFetchPage(@Nonnull final Downloader downloader)
             throws IOException, ExtractionException {
-        final Response response = getDownloader().get(getUrl());
-        doc = Jsoup.parse(response.responseBody());
-        checkIfChannelIsAvailable(response);
+        doc = RumbleParsingHelper.fetchParseValidate(downloader, getUrl());
         final String about_link = RumbleParsingHelper.extractSafely(false,
             "",
             () -> doc.selectFirst("[href*='about']").attr("href")

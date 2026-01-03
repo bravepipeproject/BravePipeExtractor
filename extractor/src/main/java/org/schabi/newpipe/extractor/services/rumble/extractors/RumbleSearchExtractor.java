@@ -15,6 +15,7 @@ import org.schabi.newpipe.extractor.exceptions.ParsingException;
 import org.schabi.newpipe.extractor.linkhandler.SearchQueryHandler;
 import org.schabi.newpipe.extractor.search.SearchExtractor;
 import org.schabi.newpipe.extractor.search.filter.FilterItem;
+import org.schabi.newpipe.extractor.services.rumble.RumbleParsingHelper;
 import org.schabi.newpipe.extractor.services.rumble.search.filter.RumbleFilters;
 import org.schabi.newpipe.extractor.stream.StreamInfoItemExtractor;
 
@@ -41,7 +42,7 @@ public class RumbleSearchExtractor extends SearchExtractor {
     @Override
     public void onFetchPage(@Nonnull final Downloader downloader)
             throws IOException, ExtractionException {
-        doc = Jsoup.parse(getDownloader().get(getUrl()).responseBody());
+        doc = RumbleParsingHelper.fetchParseValidate(downloader, getUrl());
     }
 
     @Nonnull

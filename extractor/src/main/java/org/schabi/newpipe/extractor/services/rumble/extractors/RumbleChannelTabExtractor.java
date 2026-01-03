@@ -10,6 +10,7 @@ import org.schabi.newpipe.extractor.downloader.Downloader;
 import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
 import org.schabi.newpipe.extractor.linkhandler.ListLinkHandler;
+import org.schabi.newpipe.extractor.services.rumble.RumbleParsingHelper;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -36,7 +37,7 @@ public class RumbleChannelTabExtractor extends ChannelTabExtractor {
     @Override
     public void onFetchPage(@Nonnull final Downloader downloader)
             throws IOException, ExtractionException {
-        doc = Jsoup.parse(getDownloader().get(getUrl()).responseBody());
+        doc = RumbleParsingHelper.fetchParseValidate(downloader, getUrl());
     }
 
     @Nonnull

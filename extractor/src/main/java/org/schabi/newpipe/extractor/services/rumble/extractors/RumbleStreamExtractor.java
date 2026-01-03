@@ -19,10 +19,8 @@ import org.schabi.newpipe.extractor.MetaInfo;
 import org.schabi.newpipe.extractor.StreamingService;
 import org.schabi.newpipe.extractor.downloader.Downloader;
 import org.schabi.newpipe.extractor.downloader.Response;
-import org.schabi.newpipe.extractor.exceptions.ContentNotAvailableException;
 import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
-import org.schabi.newpipe.extractor.exceptions.PrivateContentException;
 import org.schabi.newpipe.extractor.exceptions.ReCaptchaException;
 import org.schabi.newpipe.extractor.linkhandler.LinkHandler;
 import org.schabi.newpipe.extractor.localization.DateWrapper;
@@ -584,14 +582,11 @@ public class RumbleStreamExtractor extends StreamExtractor {
     public void onFetchPage(@Nonnull final Downloader downloader)
             throws IOException, ExtractionException {
 
-        final Response response = downloader.get(getUrl());
-        final String rb = response.responseBody();
-        doc = Jsoup.parse(rb, getUrl());
 
-        checkIfVideoIsAccessible(response);
+        doc = RumbleParsingHelper.fetchParseValidate(downloader, getUrl());
 
         final String queryUrl = "https://rumble.com/embedJS/u3/?request=video&ver=2&v=v"
-                + RumbleParsingHelper.getEmbedVideoId(rb);
+                + RumbleParsingHelper.getEmbedVideoId(doc.toString());
 
         final Response response2 = downloader.get(
                 queryUrl);
@@ -608,25 +603,6 @@ public class RumbleStreamExtractor extends StreamExtractor {
         } catch (final JsonParserException e) {
             e.printStackTrace();
             throw new ParsingException("Could not read json from: " + queryUrl);
-        }
-    }
-
-    private void checkIfVideoIsAccessible(final Response response)
-            throws ContentNotAvailableException {
-        if (response.responseCode() == 403) {
-            String errMsg = RumbleParsingHelper.getErrFromTitle(this.doc);
-            if (errMsg == null) {
-                errMsg = "This video is private.";
-            }
-            throw new PrivateContentException(errMsg);
-
-        } else if (response.responseCode() == 404) {
-            String errMsg = RumbleParsingHelper.getErrFromTitle(this.doc);
-            if (errMsg == null) {
-                errMsg = "unknown, guess the video is missing";
-            }
-            throw new ContentNotAvailableException(errMsg);
-
         }
     }
 

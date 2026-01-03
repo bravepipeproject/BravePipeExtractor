@@ -1,10 +1,18 @@
 package org.schabi.newpipe.extractor.services.rumble;
 
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.schabi.newpipe.extractor.brave.BraveCloudFlareChallengeException;
+import org.schabi.newpipe.extractor.downloader.Downloader;
+import org.schabi.newpipe.extractor.downloader.Response;
+import org.schabi.newpipe.extractor.exceptions.ContentNotAvailableException;
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
+import org.schabi.newpipe.extractor.exceptions.PrivateContentException;
+import org.schabi.newpipe.extractor.exceptions.ReCaptchaException;
 import org.schabi.newpipe.extractor.utils.Utils;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
@@ -244,5 +252,43 @@ public final class RumbleParsingHelper {
         } else {
             return null;
         }
+    }
+
+    public static void checkIfContentIsAccessible(
+            final Response response,
+            final Document doc)
+            throws ContentNotAvailableException, BraveCloudFlareChallengeException {
+        final int code = response.responseCode();
+        if (code == 403) {
+            final String errMsg = code + " - " + getErrFromTitle(doc);
+            if (errMsg.toLowerCase().contains("private")) {
+                throw new PrivateContentException(errMsg);
+            } // cloudflare challenge -- not possible to solve here
+            else if (doc.selectFirst("span#challenge-error-text") != null
+                    || errMsg.toLowerCase().contains("just a moment...")) {
+                throw new BraveCloudFlareChallengeException(
+                        errMsg + " for " + response.latestUrl());
+            } else {
+                throw new ContentNotAvailableException(errMsg);
+            }
+
+        } else if (code == 404) {
+            String errMsg = getErrFromTitle(doc);
+            if (errMsg == null) {
+                errMsg = "unknown, guess the video/channel/... is missing";
+            }
+            throw new ContentNotAvailableException(code + " - " + errMsg);
+        }
+    }
+
+    public static Document fetchParseValidate(
+            final Downloader downloader,
+            final String url)
+            throws IOException, ReCaptchaException, ParsingException {
+        final Response response = downloader.get(url);
+        final String rb = response.responseBody();
+        final Document doc = Jsoup.parse(rb, url);
+        checkIfContentIsAccessible(response, doc);
+        return doc;
     }
 }
