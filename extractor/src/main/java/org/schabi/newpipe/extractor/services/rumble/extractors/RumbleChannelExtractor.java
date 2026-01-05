@@ -59,7 +59,12 @@ public class RumbleChannelExtractor extends ChannelExtractor {
             () -> doc.selectFirst("[href*='about']").attr("href")
         );
         if (null != about_link) {
-            about = Jsoup.parse(getDownloader().get(getService().getBaseUrl() + about_link).responseBody());
+            // somehow it is flawed within rumbles code. Some pages have complete url some not
+            if (about_link.startsWith("http")) {
+                about = Jsoup.parse(getDownloader().get(about_link).responseBody());
+            } else {
+                about = Jsoup.parse(getDownloader().get(getService().getBaseUrl() + about_link).responseBody());
+            }
         }
     }
 
