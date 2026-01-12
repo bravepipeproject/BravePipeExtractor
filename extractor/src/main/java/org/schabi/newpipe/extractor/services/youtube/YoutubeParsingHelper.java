@@ -67,10 +67,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -291,20 +287,6 @@ public final class YoutubeParsingHelper {
             return FEED_BASE_CHANNEL_ID + channelIdOrUser.replace("channel/", "");
         } else {
             return FEED_BASE_CHANNEL_ID + channelIdOrUser;
-        }
-    }
-
-    public static OffsetDateTime parseDateFrom(final String textualUploadDate)
-            throws ParsingException {
-        try {
-            return OffsetDateTime.parse(textualUploadDate);
-        } catch (final DateTimeParseException e) {
-            try {
-                return LocalDate.parse(textualUploadDate).atStartOfDay().atOffset(ZoneOffset.UTC);
-            } catch (final DateTimeParseException e1) {
-                throw new ParsingException("Could not parse date: \"" + textualUploadDate + "\"",
-                        e1);
-            }
         }
     }
 
@@ -776,6 +758,22 @@ public final class YoutubeParsingHelper {
                     + navigationEndpoint.getObject("watchPlaylistEndpoint")
                     .getString("playlistId");
         }
+
+        if (navigationEndpoint.has("showDialogCommand")) {
+            try {
+                final JsonArray listItems = JsonUtils.getArray(navigationEndpoint,
+                    "showDialogCommand.panelLoadingStrategy.inlineContent.dialogViewModel"
+                    + ".customContent.listViewModel.listItems");
+
+                // the first item seems to always be the channel that actually uploaded the video,
+                // i.e. it appears in their video feed
+                final JsonObject command = JsonUtils.getObject(listItems.getObject(0),
+                    "listItemViewModel.rendererContext.commandContext.onTap.innertubeCommand");
+                return getUrlFromNavigationEndpoint(command);
+            } catch (final ParsingException p) {
+            }
+        }
+
 
         if (navigationEndpoint.has("commandMetadata")) {
             final JsonObject metadata = navigationEndpoint.getObject("commandMetadata")
@@ -1589,5 +1587,25 @@ public final class YoutubeParsingHelper {
                 .end();
 
         return builder;
+    }
+
+    /**
+     * Gets the first collaborator, which is the channel that owns the video,
+     * i.e. the video is displayed on their channel page.
+     *
+     * @param navigationEndpoint JSON object for the navigationEndpoint
+     * @return The first collaborator in the JSON object or {@code null}
+     */
+    @Nullable
+    public static JsonObject getFirstCollaborator(final JsonObject navigationEndpoint)
+            throws ParsingException {
+        try {
+            // CHECKSTYLE:OFF
+            final JsonArray listItems = JsonUtils.getArray(navigationEndpoint, "showDialogCommand.panelLoadingStrategy.inlineContent.dialogViewModel.customContent.listViewModel.listItems");
+            // CHECKSTYLE:ON
+            return listItems.getObject(0).getObject("listItemViewModel");
+        } catch (final ParsingException e) {
+            return null;
+        }
     }
 }

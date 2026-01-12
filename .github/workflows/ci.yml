@@ -25,23 +25,23 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: set up JDK 11
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '11'
           distribution: 'temurin'
       
       - name: Cache Gradle wrapper dists
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.gradle/wrapper/dists
           key: ${{ runner.os }}-gradle-wrapper-dists-${{ hashFiles('gradle/wrapper/**') }}
           restore-keys: ${{ runner.os }}-gradle-wrapper-dists
 
       - name: Cache Gradle dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
@@ -59,10 +59,11 @@ jobs:
           ./gradlew check \
             -Dorg.gradle.welcome=never \
             --stacktrace \
-            -Ddownloader=$downloader_type
+            -Ddownloader=$downloader_type \
+            -Dcom.google.protobuf.error_on_unsafe_pre22_gencode
 
       - name: Upload test reports when failure occurs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: failure()
         with:
           name: NewPipeExtractor-test-reports

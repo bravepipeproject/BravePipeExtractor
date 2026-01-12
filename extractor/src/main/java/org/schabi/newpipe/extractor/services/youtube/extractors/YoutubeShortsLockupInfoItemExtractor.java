@@ -80,7 +80,15 @@ public class YoutubeShortsLockupInfoItemExtractor extends BraveYoutubeShortsLock
     @Nonnull
     @Override
     public List<Image> getThumbnails() throws ParsingException {
-        return getImagesFromThumbnailsArray(shortsLockupViewModel.getObject("thumbnail")
+        if (shortsLockupViewModel.has("thumbnail")) {
+            return getImagesFromThumbnailsArray(shortsLockupViewModel.getObject("thumbnail")
+                .getArray("sources"));
+        }
+
+        return getImagesFromThumbnailsArray(shortsLockupViewModel
+                .getObject("thumbnailViewModel")
+                .getObject("thumbnailViewModel")
+                .getObject("image")
                 .getArray("sources"));
     }
 

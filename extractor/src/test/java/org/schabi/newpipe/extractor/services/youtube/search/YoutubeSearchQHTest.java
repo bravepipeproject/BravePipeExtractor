@@ -48,17 +48,18 @@ public class YoutubeSearchQHTest {
     }
 
     @Test
-    public void testWithContentfilter() throws Exception {
+    public void testWithContentFilter() throws Exception {
         final FilterItem videoFilterItem = DefaultSearchExtractorTest.getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_VIDEOS);
         final FilterItem channelsFilterItem = DefaultSearchExtractorTest.getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_CHANNELS);
         final FilterItem playlistsFilterItem = DefaultSearchExtractorTest.getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_PLAYLISTS);
         final FilterItem musicSongsFilterItem = DefaultSearchExtractorTest.getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_YOUTUBE_MUSIC_SONGS);
-        assertEquals("https://www.youtube.com/results?search_query=asdf&sp=EgIQAfABAQ%3D%3D", YouTube.getSearchQHFactory()
-                .fromQuery("asdf", singletonList(videoFilterItem), null).getUrl());
-        assertEquals("https://www.youtube.com/results?search_query=asdf&sp=EgIQAvABAQ%3D%3D", YouTube.getSearchQHFactory()
-                .fromQuery("asdf", singletonList(channelsFilterItem), null).getUrl());
-        assertEquals("https://www.youtube.com/results?search_query=asdf&sp=EgIQA_ABAQ%3D%3D", YouTube.getSearchQHFactory()
-                .fromQuery("asdf", singletonList(playlistsFilterItem), null).getUrl());
+
+        assertEquals("https://www.youtube.com/results?search_query=asdf&sp=EgIQAfABAQ%253D%253D", YouTube.getSearchQHFactory()
+            .fromQuery("asdf", singletonList(videoFilterItem), null).getUrl());
+        assertEquals("https://www.youtube.com/results?search_query=asdf&sp=EgIQAvABAQ%253D%253D", YouTube.getSearchQHFactory()
+            .fromQuery("asdf", singletonList(channelsFilterItem), null).getUrl());
+        assertEquals("https://www.youtube.com/results?search_query=asdf&sp=EgIQA_ABAQ%253D%253D", YouTube.getSearchQHFactory()
+            .fromQuery("asdf", singletonList(playlistsFilterItem), null).getUrl());
         assertEquals("https://www.youtube.com/results?search_query=asdf&sp=8AEB", YouTube.getSearchQHFactory()
                 .fromQuery("asdf", singletonList(null), null).getUrl());
 
