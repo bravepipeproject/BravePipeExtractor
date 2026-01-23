@@ -8,6 +8,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
     alias(libs.plugins.google.protobuf)
+    id("com.squareup.wire") version "5.5.0"
     checkstyle
     `maven-publish`
 }
@@ -56,6 +57,10 @@ checkstyle {
 // Exclude Protobuf generated files from Checkstyle
 tasks.checkstyleMain {
     exclude(
+        // brave exclude the wire generated youtube protobuf files
+        "org/schabi/newpipe/extractor/services/youtube/search/filter/protobuf/",
+        "com/github/bravenewpipe/json2java4nanojson",
+
         "org/schabi/newpipe/extractor/services/youtube/protos",
         "org/schabi/newpipe/extractor/timeago"
     )
@@ -84,6 +89,11 @@ dependencies {
 
     testImplementation(libs.squareup.okhttp)
     testImplementation(libs.google.gson)
+
+    // BravePipeExtractor
+    implementation("com.github.evermind-zz:hlsdownloader:1.0.0")
+    val okHttpVersion: String = libs.versions.okhttp.get()
+    testImplementation("com.squareup.okhttp3:okhttp-urlconnection:$okHttpVersion")
 }
 
 protobuf {
@@ -99,6 +109,15 @@ protobuf {
                 }
             }
         }
+    }
+}
+
+wire {
+    sourcePath {
+        srcDir("src/main/wire/proto")
+    }
+
+    java {
     }
 }
 
