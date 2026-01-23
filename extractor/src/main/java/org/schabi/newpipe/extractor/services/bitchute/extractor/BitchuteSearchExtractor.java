@@ -14,6 +14,7 @@ import org.schabi.newpipe.extractor.MetaInfo;
 import org.schabi.newpipe.extractor.MultiInfoItemsCollector;
 import org.schabi.newpipe.extractor.Page;
 import org.schabi.newpipe.extractor.StreamingService;
+import org.schabi.newpipe.extractor.brave.misc.BraveParsingHelper;
 import org.schabi.newpipe.extractor.channel.ChannelInfoItemExtractor;
 import org.schabi.newpipe.extractor.downloader.Downloader;
 import org.schabi.newpipe.extractor.exceptions.ExtractionException;
@@ -167,7 +168,7 @@ public class BitchuteSearchExtractor extends SearchExtractor {
             if (textualDate != null) {
                 try {
                     uploadDate = new DateWrapper(
-                            YoutubeParsingHelper.parseDateFrom(textualDate));
+                            BraveParsingHelper.parseDateFrom(textualDate));
                 } catch (final Exception e) {
                     throw new ParsingException("Error Parsing Upload Date: "
                             + e.getMessage());

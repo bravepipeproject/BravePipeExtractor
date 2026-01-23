@@ -6,7 +6,6 @@ import com.grack.nanojson.JsonObject;
 import com.grack.nanojson.JsonParser;
 import com.grack.nanojson.JsonParserException;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
@@ -17,6 +16,7 @@ import org.schabi.newpipe.extractor.Image;
 import org.schabi.newpipe.extractor.MediaFormat;
 import org.schabi.newpipe.extractor.MetaInfo;
 import org.schabi.newpipe.extractor.StreamingService;
+import org.schabi.newpipe.extractor.brave.misc.BraveParsingHelper;
 import org.schabi.newpipe.extractor.downloader.Downloader;
 import org.schabi.newpipe.extractor.downloader.Response;
 import org.schabi.newpipe.extractor.exceptions.ExtractionException;
@@ -109,7 +109,7 @@ public class RumbleStreamExtractor extends StreamExtractor {
             return null;
         }
         // the format is: 2021-02-08T19:37:25+00:00  youtube-dl pares it with iso8601b
-        return new DateWrapper(YoutubeParsingHelper.parseDateFrom(textualUploadDate), false);
+        return new DateWrapper(BraveParsingHelper.parseDateFrom(textualUploadDate), false);
     }
 
     @Nonnull

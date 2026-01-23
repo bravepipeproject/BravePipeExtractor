@@ -11,6 +11,7 @@ import org.schabi.newpipe.extractor.Image;
 import org.schabi.newpipe.extractor.MediaFormat;
 import org.schabi.newpipe.extractor.MetaInfo;
 import org.schabi.newpipe.extractor.StreamingService;
+import org.schabi.newpipe.extractor.brave.misc.BraveParsingHelper;
 import org.schabi.newpipe.extractor.downloader.Downloader;
 import org.schabi.newpipe.extractor.downloader.Response;
 import org.schabi.newpipe.extractor.exceptions.ExtractionException;
@@ -120,7 +121,7 @@ public class BitchuteStreamExtractor extends StreamExtractor {
     @Nullable
     @Override
     public DateWrapper getUploadDate() throws ParsingException {
-        return new DateWrapper(YoutubeParsingHelper.parseDateFrom(getTextualUploadDate()));
+        return new DateWrapper(BraveParsingHelper.parseDateFrom(getTextualUploadDate()));
     }
 
     @Nonnull

@@ -3,6 +3,7 @@ package org.schabi.newpipe.extractor.services.bitchute.extractor;
 import com.github.bravenewpipe.json2java4nanojson.bitchute.api.results.stream.videos.Videos;
 
 import org.schabi.newpipe.extractor.Image;
+import org.schabi.newpipe.extractor.brave.misc.BraveParsingHelper;
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
 import org.schabi.newpipe.extractor.localization.DateWrapper;
 import org.schabi.newpipe.extractor.services.bitchute.BitchuteConstants;
@@ -66,7 +67,7 @@ public class BitchuteTrendingStreamInfoItemExtractor implements StreamInfoItemEx
     @Nullable
     @Override
     public DateWrapper getUploadDate() throws ParsingException {
-        return new DateWrapper(YoutubeParsingHelper.parseDateFrom(getTextualUploadDate()));
+        return new DateWrapper(BraveParsingHelper.parseDateFrom(getTextualUploadDate()));
     }
 
     @Override
