@@ -9,6 +9,8 @@
 # - v1.1.0 (20250904):
 #   * Added options --clean-m2 --overwrite
 #   * Added option --custom-tag to override git tag detection
+# - v1.1.1 (20260123):
+#   * drop {build,settings}.gradle and use {build,settings}.build.kts
 
 """
 This script automates the version update and local Maven publishing process
@@ -19,7 +21,7 @@ It is used to easily push it later to a custom repo as jitpack.io is sometimes
 not reliable.
 
 Features:
-- Retrieves the current Git tag and uses it as the version in `build.gradle`.
+- Retrieves the current Git tag and uses it as the version in `build.gradle.kts`.
 - Updates the root project name in `settings.gradle`.
 - Temporarily overrides the default Maven local repository (`~/.m2/repository`)
   with a custom directory to isolate published artifacts.
@@ -48,13 +50,14 @@ from pathlib import Path
 from threading import Lock
 
 # Constants
-BUILD_FILE = Path("build.gradle")
-SETTINGS_FILE = Path("settings.gradle")
+BUILD_FILE = Path("build.gradle.kts")
+EXT_BUILD_FILE = Path("extractor/build.gradle.kts")
+SETTINGS_FILE = Path("settings.gradle.kts")
 GRADLE_BIN = "./gradlew"
 MAVEN_REPO_TEMP = "/tmp/local-maven-publish-repo"
 M2_REPO = Path.home() / ".m2" / "repository"
 M2_BACKUP = Path.home() / f".m2/repository.bak.{int(time.time())}"
-PROJECTS = ["", "extractor", "timeago-generator", "timeago-parser"]
+PROJECTS = ["extractor"] #, "timeago-generator", "timeago-parser"]
 DAEMON_PID_FILE = ".gradle-daemon-pid"
 PROJECT_GROUP = "com.github.bravepipeproject"
 ROOT_PROJECT_NAME = "BravePipeExtractor"
@@ -71,22 +74,27 @@ def get_git_tag():
     except subprocess.CalledProcessError:
         raise RuntimeError("❌ Could not determine current Git tag (and no --custom-tag provided).")
 
-def update_build_gradle(tag):
+def update_build_gradle_kts(tag):
     content = BUILD_FILE.read_text()
-    content = re.sub(r"version\s+['\"].*?['\"]", f"version '{tag}'", content)
-    content = re.sub(r"group\s+['\"].*?['\"]", f"group '{PROJECT_GROUP}'", content)
+    content = re.sub(r"version\s*=\s*['\"].*?['\"]", f"version = \"{tag}\"", content)
     BUILD_FILE.write_text(content)
     print(f"✔ Updated {BUILD_FILE}")
 
-def update_settings_gradle():
+def update_settings_gradle_kts():
     content = SETTINGS_FILE.read_text()
     content = re.sub(
         r"(rootProject\.name\s*=\s*)['\"].*?['\"]",
-        fr"\1'{ROOT_PROJECT_NAME}'",
+        fr'\1"{ROOT_PROJECT_NAME}"',
         content
     )
     SETTINGS_FILE.write_text(content)
     print(f"✔ Updated {SETTINGS_FILE}")
+
+def update_extractor_build_gradle_kts():
+    content = EXT_BUILD_FILE.read_text()
+    content = re.sub(r"groupId\s*=\s*['\"].*?['\"]", f"groupId = \"{PROJECT_GROUP}\"", content)
+    EXT_BUILD_FILE.write_text(content)
+    print(f"✔ Updated {EXT_BUILD_FILE}")
 
 def start_gradle_daemon():
     print("⚙️  Starting Gradle daemon...")
@@ -236,8 +244,9 @@ def main():
     try:
         tag = get_git_tag()
         print(f"🏷  Using Git tag: {tag}")
-        update_build_gradle(tag)
-        update_settings_gradle()
+        update_build_gradle_kts(tag)
+        update_settings_gradle_kts()
+        update_extractor_build_gradle_kts()
         if ARGS.write_to_current_m2:
             print("📝 Writing directly into current ~/.m2/repository")
         else:
