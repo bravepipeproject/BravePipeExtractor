@@ -11,6 +11,8 @@
 #   * Added option --custom-tag to override git tag detection
 # - v1.1.1 (20260123):
 #   * drop {build,settings}.gradle and use {build,settings}.build.kts
+#   * only change files if not already updated
+#   * also set isFailOnError = false for task Javadoc in build.gradle.kts
 
 """
 This script automates the version update and local Maven publishing process
@@ -74,27 +76,63 @@ def get_git_tag():
     except subprocess.CalledProcessError:
         raise RuntimeError("❌ Could not determine current Git tag (and no --custom-tag provided).")
 
-def update_build_gradle_kts(tag):
+def update_tag_in_build_gradle_kts(tag):
     content = BUILD_FILE.read_text()
-    content = re.sub(r"version\s*=\s*['\"].*?['\"]", f"version = \"{tag}\"", content)
+    wanted = f'version = "{tag}"'
+
+    if wanted in content:
+        print(f"✔ Already Updated {BUILD_FILE} with {wanted}")
+        return
+
+    content = re.sub(r"version\s*=\s*['\"].*?['\"]", wanted, content)
     BUILD_FILE.write_text(content)
-    print(f"✔ Updated {BUILD_FILE}")
+    print(f"✔ Updated {BUILD_FILE} with {wanted}")
+
+def update_javadoc_in_build_gradle_kts():
+    content = BUILD_FILE.read_text()
+    wanted =  "isFailOnError = false"
+
+    if wanted in content:
+        print(f"✔ Already Updated {BUILD_FILE} with {wanted}")
+        return
+
+    content = re.sub(
+        r"(tasks\.withType<Javadoc>\(\)\.configureEach\s*\{\s*)",
+        r"\1    isFailOnError = false\n",
+        content,
+        count=1
+    )
+    BUILD_FILE.write_text(content)
+    print(f"✔ Updated {BUILD_FILE} with {wanted}")
+
 
 def update_settings_gradle_kts():
     content = SETTINGS_FILE.read_text()
+    wanted = f'rootProject.name = "{ROOT_PROJECT_NAME}"'
+
+    if wanted in content:
+        print(f"✔ Already updated {SETTINGS_FILE} with {wanted}")
+        return
+
     content = re.sub(
         r"(rootProject\.name\s*=\s*)['\"].*?['\"]",
         fr'\1"{ROOT_PROJECT_NAME}"',
         content
     )
     SETTINGS_FILE.write_text(content)
-    print(f"✔ Updated {SETTINGS_FILE}")
+    print(f"✔ Updated {SETTINGS_FILE} with {wanted}")
 
 def update_extractor_build_gradle_kts():
     content = EXT_BUILD_FILE.read_text()
-    content = re.sub(r"groupId\s*=\s*['\"].*?['\"]", f"groupId = \"{PROJECT_GROUP}\"", content)
+    wanted = f'groupId = "{PROJECT_GROUP}"'
+
+    if wanted in content:
+        print(f"✔ Already Updated {EXT_BUILD_FILE} with {wanted}")
+        return
+
+    content = re.sub(r"groupId\s*=\s*['\"].*?['\"]", wanted, content)
     EXT_BUILD_FILE.write_text(content)
-    print(f"✔ Updated {EXT_BUILD_FILE}")
+    print(f"✔ Updated {EXT_BUILD_FILE} with {wanted}")
 
 def start_gradle_daemon():
     print("⚙️  Starting Gradle daemon...")
@@ -149,9 +187,9 @@ def publish_projects():
     for project in PROJECTS:
         print(f"🚀 Publishing {project} ...")
         prefix_project = f":{project}" if project else ""
-        result = subprocess.run([GRADLE_BIN, f"{prefix_project}:publishToMavenLocal"])
+        result = subprocess.run([GRADLE_BIN, f"{prefix_project}:publishToMavenLocal", "--stacktrace"])
         if result.returncode != 0:
-            raise RuntimeError(f"❌ Failed to publish {project}")
+            raise RuntimeError(f"❌ Failed to publish {project} with return code {result.returncode}")
 
 def create_repo_tarball(repo_dir, target_dir):
     """
@@ -244,7 +282,8 @@ def main():
     try:
         tag = get_git_tag()
         print(f"🏷  Using Git tag: {tag}")
-        update_build_gradle_kts(tag)
+        update_tag_in_build_gradle_kts(tag)
+        update_javadoc_in_build_gradle_kts()
         update_settings_gradle_kts()
         update_extractor_build_gradle_kts()
         if ARGS.write_to_current_m2:
