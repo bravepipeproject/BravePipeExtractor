@@ -169,6 +169,16 @@ public class ExtractorAsserts {
                 "'" + shouldBeContained + "' should be contained inside '" + container + "'");
     }
 
+    public static <T> void assertContains(final T shouldBeContained, final List<T> container) {
+        assertNotNull(shouldBeContained, "shouldBeContained is null");
+        assertNotNull(container, "container is null");
+        final String containerString = container.stream()
+                .map(Object::toString)
+                .collect(Collectors.joining(", "));
+        assertTrue(container.contains(shouldBeContained),
+                "'" + shouldBeContained + "' should be contained inside [" + containerString + "]");
+    }
+
     public static void assertTabsContain(@Nonnull final List<ListLinkHandler> tabs,
                                          @Nonnull final FilterItem... expectedTabs) {
         final Set<FilterItem> tabSet = tabs.stream()
