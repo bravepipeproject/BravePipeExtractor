@@ -50,6 +50,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -586,7 +587,7 @@ public class RumbleStreamExtractor extends StreamExtractor {
         doc = RumbleParsingHelper.fetchParseValidate(downloader, getUrl());
 
         final String queryUrl = "https://rumble.com/embedJS/u3/?request=video&ver=2&v=v"
-                + RumbleParsingHelper.getEmbedVideoId(doc.toString());
+                + RumbleParsingHelper.getEmbedVideoId(getUrl(), () -> doc.toString());
 
         final Response response2 = downloader.get(
                 queryUrl);

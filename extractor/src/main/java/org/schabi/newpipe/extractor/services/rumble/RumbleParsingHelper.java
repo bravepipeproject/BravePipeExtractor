@@ -240,15 +240,29 @@ public final class RumbleParsingHelper {
         }
         return HEADERS;
     }
-
-    public static String getEmbedVideoId(final String rb) {
+    private static Map<String, String> embedVideoIdsCache = new HashMap();
+    public static String getEmbedVideoId(
+            final String url,
+            final Callable<String> contentProvider) throws ParsingException {
+        if (embedVideoIdsCache.containsKey(url))  {
+            return embedVideoIdsCache.get(url);
+        }
         final String VALID_URL = "https?://(?:www\\.)?rumble\\.com/embed/(?:[0-9a-z]+\\.)?([0-9a-z]+)"; // id is group 1
         final String EMBED_REGEX = "(?:<(?:script|iframe)[^>]+\\bsrc=|[\"']embedUrl[\"']\\s*:\\s*)[\"']" + VALID_URL;
         Pattern pattern = Pattern.compile(EMBED_REGEX);
-        Matcher matcher = pattern.matcher(rb);
+        final String content;
+        try {
+            content = contentProvider.call();
+        } catch (final Exception e) {
+            throw new ParsingException("Could not extract the embed id due to missing content");
+        }
+
+        Matcher matcher = pattern.matcher(content);
         if (matcher.find()) {
             // Remove v (first character) from the id
-            return matcher.group(1).substring(1);
+            final String result = matcher.group(1).substring(1);
+            embedVideoIdsCache.put(url, result);
+            return result;
         } else {
             return null;
         }

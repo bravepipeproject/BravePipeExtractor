@@ -17,6 +17,7 @@ import org.schabi.newpipe.extractor.comments.CommentsInfoItem;
 import org.schabi.newpipe.extractor.comments.CommentsInfoItemsCollector;
 import org.schabi.newpipe.extractor.downloader.Downloader;
 import org.schabi.newpipe.extractor.exceptions.ExtractionException;
+import org.schabi.newpipe.extractor.exceptions.ParsingException;
 import org.schabi.newpipe.extractor.linkhandler.ListLinkHandler;
 import org.schabi.newpipe.extractor.services.rumble.RumbleParsingHelper;
 
@@ -41,6 +42,18 @@ public class RumbleCommentsExtractor extends CommentsExtractor {
         super(service, uiHandler);
     }
 
+    @Nonnull
+    @Override
+    public String getUrl() throws ParsingException {
+        final String videoUrl = super.getUrl();
+        final String id = RumbleParsingHelper.getEmbedVideoId(
+                videoUrl,
+                () -> getDownloader().get(videoUrl).responseBody()
+        );
+        return "https://rumble.com/service.php?video=" + id + "&name=comment.list";
+    }
+
+    @Override
     public boolean isCommentsDisabled() throws ExtractionException {
         return doc == null;
     }
@@ -50,9 +63,7 @@ public class RumbleCommentsExtractor extends CommentsExtractor {
     public InfoItemsPage<CommentsInfoItem> getInitialPage()
             throws IOException, ExtractionException {
         Downloader downloader = NewPipe.getDownloader();
-        String id = RumbleParsingHelper.getEmbedVideoId(downloader.get(getUrl()).responseBody());
-        String url = "https://rumble.com/service.php?video=" + id + "&name=comment.list";
-        byte[] responseBody = downloader.get(url).responseBody().getBytes();
+        byte[] responseBody = downloader.get(getUrl()).responseBody().getBytes();
         return getPage(new Page("1", responseBody));
     }
 
@@ -165,7 +176,7 @@ public class RumbleCommentsExtractor extends CommentsExtractor {
                     return;
                 }
                 Elements createComment = doc.select("li.comment-item.comment-item.comments-create");
-                if (createComment != null) {
+                if (!createComment.isEmpty()) {
                     createComment.remove();
                 }
                 initImageMap(info.get("css_libs").toString());
