@@ -7,10 +7,9 @@ import org.schabi.newpipe.extractor.Page;
 import org.schabi.newpipe.extractor.comments.CommentsInfoItemExtractor;
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
 import org.schabi.newpipe.extractor.localization.DateWrapper;
-import org.schabi.newpipe.extractor.services.rumble.extractors.RumbleCommentsExtractor;
 import org.schabi.newpipe.extractor.stream.Description;
 
-import java.time.ZonedDateTime;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
@@ -58,9 +57,16 @@ public class RumbleCommentsInfoItemExtractor implements CommentsInfoItemExtracto
     @Nullable
     @Override
     public DateWrapper getUploadDate() throws ParsingException {
-        final var formatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, yyyy h:mm a x", Locale.ENGLISH);
-        final var datetime = ZonedDateTime.parse(getTextualUploadDate(), formatter);
-        return new DateWrapper(datetime.toOffsetDateTime(), false);
+        final var formatter = DateTimeFormatter.ofPattern(
+                "MMMM d, yyyy h:mm a x",
+                Locale.ENGLISH
+        );
+        // removes "EEEE,"  eg. "Monday," from the start of the string
+        // as there can be conflicts that on some time zones it is still the day
+        // before or already the day after and then the weekday will not match.
+        final String stringWithoutWeekday = getTextualUploadDate().replaceFirst("^[^,]+, ", "");
+        final var datetime = OffsetDateTime.parse(stringWithoutWeekday, formatter);
+        return new DateWrapper(datetime, false);
     }
 
     @Override
