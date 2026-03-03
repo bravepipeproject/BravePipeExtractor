@@ -33,7 +33,8 @@ import org.schabi.newpipe.extractor.stream.StreamExtractor;
 import org.schabi.newpipe.extractor.subscription.SubscriptionExtractor;
 import org.schabi.newpipe.extractor.suggestion.SuggestionExtractor;
 
-import static java.util.Arrays.asList;
+import java.util.EnumSet;
+
 import static org.schabi.newpipe.extractor.StreamingService.ServiceInfo.MediaCapability.COMMENTS;
 import static org.schabi.newpipe.extractor.StreamingService.ServiceInfo.MediaCapability.VIDEO;
 import static org.schabi.newpipe.extractor.services.bitchute.linkHandler.BitchuteKioskLinkHandlerFactory.POPULAR;
@@ -47,7 +48,7 @@ public class BitchuteService extends StreamingService {
     public static final String BITCHUTE_LINK = "https://www.bitchute.com/";
 
     public BitchuteService(final int id) {
-        super(id, "BitChute", asList(VIDEO, COMMENTS));
+        super(id, "BitChute", EnumSet.of(VIDEO, COMMENTS));
     }
 
     @Override

@@ -31,13 +31,14 @@ import org.schabi.newpipe.extractor.stream.StreamExtractor;
 import org.schabi.newpipe.extractor.subscription.SubscriptionExtractor;
 import org.schabi.newpipe.extractor.suggestion.SuggestionExtractor;
 
-import static java.util.Arrays.asList;
+import java.util.EnumSet;
+
 import static org.schabi.newpipe.extractor.ServiceList.Rumble;
 
 public class RumbleService extends StreamingService {
 
     public RumbleService(final int id) {
-        super(id, "Rumble", asList(ServiceInfo.MediaCapability.VIDEO,
+        super(id, "Rumble", EnumSet.of(ServiceInfo.MediaCapability.VIDEO,
                 ServiceInfo.MediaCapability.AUDIO, ServiceInfo.MediaCapability.COMMENTS,
                 ServiceInfo.MediaCapability.LIVE));
     }
