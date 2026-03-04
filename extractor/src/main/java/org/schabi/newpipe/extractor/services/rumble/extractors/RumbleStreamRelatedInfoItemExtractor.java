@@ -2,9 +2,9 @@ package org.schabi.newpipe.extractor.services.rumble.extractors;
 
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Node;
 import org.jsoup.select.Elements;
 import org.schabi.newpipe.extractor.Image;
+import org.schabi.newpipe.extractor.brave.AttachException;
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
 import org.schabi.newpipe.extractor.localization.DateWrapper;
 import org.schabi.newpipe.extractor.localization.TimeAgoParser;
@@ -81,7 +81,10 @@ public class RumbleStreamRelatedInfoItemExtractor implements StreamInfoItemExtra
             return duration;
 
         } catch (final Exception e) {
-            throw new ParsingException("Error parsing duration: " + e);
+            final AttachException exception =
+                    new AttachException("Error parsing duration: " + e);
+            exception.addExceptionData("element", element.html());
+            throw exception;
         }
     }
 

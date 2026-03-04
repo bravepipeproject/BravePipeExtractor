@@ -1,5 +1,6 @@
 package org.schabi.newpipe.extractor.services.rumble.linkHandler;
 
+import org.schabi.newpipe.extractor.brave.AttachException;
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
 import org.schabi.newpipe.extractor.linkhandler.LinkHandlerFactory;
 import org.schabi.newpipe.extractor.utils.Utils;
@@ -44,7 +45,10 @@ public final class RumbleStreamLinkHandlerFactory extends LinkHandlerFactory {
                 throw new MalformedURLException();
             }
         } catch (final MalformedURLException e) {
-            throw new ParsingException("The given URL is not valid: " + urlString);
+            final AttachException exception =
+                    new AttachException("The given URL is not valid: " + urlString);
+            exception.addExceptionData(e.getMessage());
+            throw exception;
         }
 
         String videoId = null;
