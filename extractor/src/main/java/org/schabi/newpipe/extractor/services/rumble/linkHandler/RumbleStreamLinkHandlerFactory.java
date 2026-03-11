@@ -7,14 +7,20 @@ import org.schabi.newpipe.extractor.utils.Utils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayDeque;
+
+import javax.annotation.Nonnull;
 
 public final class RumbleStreamLinkHandlerFactory extends LinkHandlerFactory {
 
+    static final String BASE_URL = "https://rumble.com";
     private static final RumbleStreamLinkHandlerFactory INSTANCE =
             new RumbleStreamLinkHandlerFactory();
-
-    static final String BASE_URL = "https://rumble.com";
-    private String patternMatchId = "^v[a-zA-Z0-9]{4,}-?";
+    /**
+     * FIFO cache to keep some videoIds for getUrl(String id) working for shorts
+     */
+    private final CacheShortStreamIds cacheShortStreamIds = new CacheShortStreamIds();
+    private final String patternMatchId = "^v[a-zA-Z0-9]{4,}-?";
 
     private RumbleStreamLinkHandlerFactory() {
     }
@@ -32,6 +38,9 @@ public final class RumbleStreamLinkHandlerFactory extends LinkHandlerFactory {
 
     @Override
     public String getUrl(final String id) throws ParsingException {
+        if (cacheShortStreamIds.has(id)) {
+            return BASE_URL + "/shorts/" + assertsID(id);
+        }
         return BASE_URL + "/" + assertsID(id);
     }
 
@@ -51,21 +60,24 @@ public final class RumbleStreamLinkHandlerFactory extends LinkHandlerFactory {
             throw exception;
         }
 
-        String videoId = null;
-        final String[] pathParts = url.getPath().split("/");
-        // url.getPath() returns a path starting with '/'
-        // -> therefore we expect 2 elements
-        if (pathParts.length < 2) {
-            throw new ParsingException("Error getting ID: " + url.getPath());
+
+        String path = url.getPath();
+        boolean isShorts = false;
+
+        if (path.startsWith("/shorts/v")) {
+            path = path.substring(8);
+            isShorts = true;
+        } else if (path.startsWith("/v")) {
+            path = path.substring(1);
+        } else {
+            return null; // or handle invalid path
         }
 
-        try {
-            // 1. the pathParts[1] has to be the videoId
-            // 2. split after first '-' as this is the separator between id and remaining url
-            final String[] splitPath = pathParts[1].split("-", 0);
-            videoId = splitPath[0];
-        } catch (final ArrayIndexOutOfBoundsException e) {
-            throw new ParsingException("Error getting ID");
+        int dash = path.indexOf('-');
+        String videoId = dash >= 2 ? path.substring(0, dash) : path;
+
+        if (isShorts) {
+            cacheShortStreamIds.enqueue(videoId);
         }
 
         return assertsID(videoId);
@@ -78,6 +90,24 @@ public final class RumbleStreamLinkHandlerFactory extends LinkHandlerFactory {
             return true;
         } catch (final ParsingException e) {
             return false;
+        }
+    }
+
+    private static class CacheShortStreamIds extends ArrayDeque<String> {
+
+        private static final int CACHE_SIZE = 5;
+
+        public synchronized void enqueue(@Nonnull String id) {
+            remove(id); // move id to newest if already present
+            addLast(id);
+
+            if (size() > CACHE_SIZE) {
+                removeFirst();
+            }
+        }
+
+        public synchronized boolean has(@Nonnull String id) {
+            return contains(id);
         }
     }
 }

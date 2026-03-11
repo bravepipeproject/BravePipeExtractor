@@ -79,7 +79,17 @@ public class RumbleStreamExtractor extends StreamExtractor {
     private List<AudioStream> audioStreams;
     private String hlsUrl = "";
 
-    public RumbleStreamExtractor(final StreamingService service, final LinkHandler linkHandler) {
+    public static StreamExtractor factory(
+            final StreamingService service,
+            final LinkHandler linkHandler) {
+       if (linkHandler.getOriginalUrl().contains("/shorts/")) {
+           return new RumbleShortsStreamExtractor(service, linkHandler);
+       } else {
+           return new RumbleStreamExtractor(service, linkHandler);
+       }
+    }
+
+    private RumbleStreamExtractor(final StreamingService service, final LinkHandler linkHandler) {
         super(service, linkHandler);
     }
 

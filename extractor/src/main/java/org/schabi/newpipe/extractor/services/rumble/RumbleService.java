@@ -75,7 +75,7 @@ public class RumbleService extends StreamingService {
 
     @Override
     public StreamExtractor getStreamExtractor(final LinkHandler linkHandler) {
-        return new RumbleStreamExtractor(this, linkHandler);
+        return RumbleStreamExtractor.factory(this, linkHandler);
     }
 
     @Override
