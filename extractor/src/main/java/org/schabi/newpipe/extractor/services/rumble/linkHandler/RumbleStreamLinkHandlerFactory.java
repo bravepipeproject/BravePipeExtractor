@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
 
 public final class RumbleStreamLinkHandlerFactory extends LinkHandlerFactory {
 
-    static final String BASE_URL = "https://rumble.com";
+    public static final String BASE_URL = "https://rumble.com";
     private static final RumbleStreamLinkHandlerFactory INSTANCE =
             new RumbleStreamLinkHandlerFactory();
     /**

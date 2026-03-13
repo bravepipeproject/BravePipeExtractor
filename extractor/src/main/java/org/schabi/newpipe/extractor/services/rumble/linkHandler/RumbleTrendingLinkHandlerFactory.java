@@ -4,6 +4,7 @@ import org.schabi.newpipe.extractor.search.filter.FilterItem;
 
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
 import org.schabi.newpipe.extractor.linkhandler.ListLinkHandlerFactory;
+import org.schabi.newpipe.extractor.services.rumble.extractors.RumbleTrendingShortsExtractor;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -35,6 +36,8 @@ public final class RumbleTrendingLinkHandlerFactory extends ListLinkHandlerFacto
                 .put("https://rumble.com/battle-leaderboard", TODAYS_BATTLE_LEADERBOARD_TOP_50);
         trendingUrl2IdMap.put("https://rumble.com/videos?sort=views&date=today", TRENDING_TODAY);
         trendingUrl2IdMap.put("https://rumble.com/videos?date=this-week", LATEST);
+        trendingUrl2IdMap.put("not.relevant.for.rumble.trending.shorts.extractor",
+                RumbleTrendingShortsExtractor.KIOSK_SHORTS);
 
         for (final Map.Entry<String, String> entry : trendingUrl2IdMap.entrySet()) {
             trendingId2UrlMap.put(entry.getValue(), entry.getKey());
@@ -70,9 +73,6 @@ public final class RumbleTrendingLinkHandlerFactory extends ListLinkHandlerFacto
 
     @Override
     public boolean onAcceptUrl(final String url) {
-        if (trendingUrl2IdMap.containsKey(url)) {
-            return true;
-        }
-        return false;
+        return trendingUrl2IdMap.containsKey(url);
     }
 }

@@ -21,6 +21,7 @@ import org.schabi.newpipe.extractor.services.rumble.extractors.RumbleCommentsExt
 import org.schabi.newpipe.extractor.services.rumble.extractors.RumbleSearchExtractor;
 import org.schabi.newpipe.extractor.services.rumble.extractors.RumbleStreamExtractor;
 import org.schabi.newpipe.extractor.services.rumble.extractors.RumbleTrendingExtractor;
+import org.schabi.newpipe.extractor.services.rumble.extractors.RumbleTrendingShortsExtractor;
 import org.schabi.newpipe.extractor.services.rumble.linkHandler.RumbleChannelLinkHandlerFactory;
 import org.schabi.newpipe.extractor.services.rumble.linkHandler.RumbleChannelTabLinkHandlerFactory;
 import org.schabi.newpipe.extractor.services.rumble.linkHandler.RumbleCommentsLinkHandlerFactory;
@@ -114,9 +115,15 @@ public class RumbleService extends StreamingService {
                                                          final String url,
                                                          final String kioskId)
                             throws ExtractionException {
-                        return new RumbleTrendingExtractor(Rumble,
-                                RumbleTrendingLinkHandlerFactory.getInstance().fromId(kioskId),
-                                kioskId);
+                        if (kioskId.equals(RumbleTrendingShortsExtractor.KIOSK_SHORTS)) {
+                            return new RumbleTrendingShortsExtractor(Rumble,
+                                    RumbleTrendingLinkHandlerFactory.getInstance().fromId(kioskId),
+                                    kioskId);
+                        } else {
+                            return new RumbleTrendingExtractor(Rumble,
+                                    RumbleTrendingLinkHandlerFactory.getInstance().fromId(kioskId),
+                                    kioskId);
+                        }
                     }
                 };
 
