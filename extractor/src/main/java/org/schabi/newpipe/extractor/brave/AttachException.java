@@ -1,9 +1,12 @@
 package org.schabi.newpipe.extractor.brave;
 
+import org.jetbrains.annotations.NotNull;
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Substitute for ParsingException.
@@ -15,6 +18,28 @@ public class AttachException extends ParsingException {
 
     public AttachException(final String message) {
         super(message);
+    }
+
+    @NotNull
+    public static AttachException createAttachException(
+            final String errMsg,
+            final String content,
+            final String displayedErrorKey,
+            final String regexWithOnlyOneMatchingGroup
+    ) {
+        final AttachException exception =
+                new AttachException(errMsg);
+        Pattern p = Pattern.compile(regexWithOnlyOneMatchingGroup,
+                Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+
+        final Matcher m = p.matcher(content);
+
+        final StringBuilder output = new StringBuilder();
+        while (m.find()) {
+            output.append(m.group(1)).append("\n----\n");
+        }
+        exception.addExceptionData(displayedErrorKey, output.toString());
+        return exception;
     }
 
     /**

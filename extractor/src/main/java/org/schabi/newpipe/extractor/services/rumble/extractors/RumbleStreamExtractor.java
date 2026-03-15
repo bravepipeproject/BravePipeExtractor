@@ -596,7 +596,7 @@ public class RumbleStreamExtractor extends StreamExtractor {
 
         doc = RumbleParsingHelper.fetchParseValidate(downloader, getUrl());
 
-        final String queryUrl = "https://rumble.com/embedJS/u3/?request=video&ver=2&v=v"
+        final String queryUrl = "https://rumble.com/embedJS/u4/?request=video&ver=2&v=v"
                 + RumbleParsingHelper.getEmbedVideoId(getUrl(), () -> doc.toString());
 
         final Response response2 = downloader.get(

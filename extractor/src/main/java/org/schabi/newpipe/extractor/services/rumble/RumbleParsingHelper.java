@@ -3,6 +3,7 @@ package org.schabi.newpipe.extractor.services.rumble;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.schabi.newpipe.extractor.brave.AttachException;
 import org.schabi.newpipe.extractor.brave.BraveCloudFlareChallengeException;
 import org.schabi.newpipe.extractor.downloader.Downloader;
 import org.schabi.newpipe.extractor.downloader.Response;
@@ -264,7 +265,12 @@ public final class RumbleParsingHelper {
             embedVideoIdsCache.put(url, result);
             return result;
         } else {
-            return null;
+            throw AttachException.createAttachException(
+                    "Could not extract the embed id due to missing context. URL: " + url,
+                    content,
+                    "internalVideoId",
+                    "(.{0,100}(<title>|embed|\"video\":).{0,100})"
+            );
         }
     }
 
