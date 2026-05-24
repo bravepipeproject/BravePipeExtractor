@@ -235,6 +235,10 @@ public final class YoutubeParsingHelper {
      */
     public static int parseDurationString(@Nonnull final String input)
             throws ParsingException, NumberFormatException {
+        if (!input.matches(".*\\d.*") && !input.equalsIgnoreCase("SHORTS")) {
+            throw new ParsingException("Error duration string contains no digits: " + input);
+        }
+
         // If time separator : is not detected, try . instead
         final String[] splitInput = input.contains(":")
                 ? input.split(":")
@@ -504,9 +508,7 @@ public final class YoutubeParsingHelper {
                 .getArray("serviceTrackingParams");
 
         // Try to get version from initial data first
-        final Stream<JsonObject> serviceTrackingParamsStream = serviceTrackingParams.stream()
-                .filter(JsonObject.class::isInstance)
-                .map(JsonObject.class::cast);
+        final var serviceTrackingParamsStream = serviceTrackingParams.streamAsJsonObjects();
 
         clientVersion = getClientVersionFromServiceTrackingParam(
                 serviceTrackingParamsStream, "CSI", "cver");
@@ -545,9 +547,7 @@ public final class YoutubeParsingHelper {
                         serviceTrackingParam.getString("service", "")
                                 .equals(serviceName))
                 .flatMap(serviceTrackingParam -> serviceTrackingParam.getArray("params")
-                        .stream())
-                .filter(JsonObject.class::isInstance)
-                .map(JsonObject.class::cast)
+                        .streamAsJsonObjects())
                 .filter(param -> param.getString("key", "")
                         .equals(clientVersionKey))
                 .map(param -> param.getString("value"))
@@ -966,9 +966,7 @@ public final class YoutubeParsingHelper {
     @Nonnull
     public static List<Image> getImagesFromThumbnailsArray(
             @Nonnull final JsonArray thumbnails) {
-        return thumbnails.stream()
-                .filter(JsonObject.class::isInstance)
-                .map(JsonObject.class::cast)
+        return thumbnails.streamAsJsonObjects()
                 .filter(thumbnail -> !isNullOrEmpty(thumbnail.getString("url")))
                 .map(thumbnail -> {
                     final int height = thumbnail.getInt("height", Image.HEIGHT_UNKNOWN);
@@ -1300,17 +1298,13 @@ public final class YoutubeParsingHelper {
 
     public static boolean hasArtistOrVerifiedIconBadgeAttachment(
             @Nonnull final JsonArray attachmentRuns) {
-        return attachmentRuns.stream()
-                .filter(JsonObject.class::isInstance)
-                .map(JsonObject.class::cast)
+        return attachmentRuns.streamAsJsonObjects()
                 .anyMatch(attachmentRun -> attachmentRun.getObject("element")
                         .getObject("type")
                         .getObject("imageType")
                         .getObject("image")
                         .getArray("sources")
-                        .stream()
-                        .filter(JsonObject.class::isInstance)
-                        .map(JsonObject.class::cast)
+                        .streamAsJsonObjects()
                         .anyMatch(source -> {
                             final String imageName = source.getObject("clientResource")
                                     .getString("imageName");

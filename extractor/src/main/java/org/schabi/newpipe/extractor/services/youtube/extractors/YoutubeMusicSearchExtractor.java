@@ -122,9 +122,7 @@ public class YoutubeMusicSearchExtractor extends SearchExtractor {
                 .getObject("content")
                 .getObject("sectionListRenderer")
                 .getArray("contents")
-                .stream()
-                .filter(JsonObject.class::isInstance)
-                .map(JsonObject.class::cast)
+                .streamAsJsonObjects()
                 .map(c -> c.getObject("itemSectionRenderer"))
                 .filter(isr -> !isr.isEmpty())
                 .map(isr -> isr
@@ -255,9 +253,7 @@ public class YoutubeMusicSearchExtractor extends SearchExtractor {
                                          @Nonnull final JsonArray videos) {
         final int searchTypeId = getSearchTypeId();
 
-        videos.stream()
-                .filter(JsonObject.class::isInstance)
-                .map(JsonObject.class::cast)
+        videos.streamAsJsonObjects()
                 .map(item -> item.getObject("musicResponsiveListItemRenderer", null))
                 .filter(Objects::nonNull)
                 .forEachOrdered(infoItem -> {

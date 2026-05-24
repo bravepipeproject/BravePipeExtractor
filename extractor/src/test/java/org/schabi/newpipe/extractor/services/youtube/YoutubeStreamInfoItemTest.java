@@ -85,4 +85,162 @@ class YoutubeStreamInfoItemTest {
         () -> assertFalse(extractor.isShortFormContent())
         );
     }
+
+    @Test
+    void lockupViewModelVideo()
+            throws FileNotFoundException, JsonParserException {
+        final var json = JsonParser.object().from(new FileInputStream(getMockPath(
+                YoutubeStreamInfoItemTest.class, "lockupViewModelVideo") + ".json"));
+        final var timeAgoParser = TimeAgoPatternsManager.getTimeAgoParserFor(Localization.DEFAULT);
+        final var extractor = new YoutubeStreamInfoItemLockupExtractor(json, timeAgoParser);
+        assertAll(
+        () -> assertEquals(StreamType.VIDEO_STREAM, extractor.getStreamType()),
+        () -> assertFalse(extractor.isAd()),
+        () -> assertEquals("https://www.youtube.com/watch?v=dQw4w9WgXcQ", extractor.getUrl()),
+        () -> assertEquals("VIDEO_TITLE", extractor.getName()),
+        () -> assertEquals(974, extractor.getDuration()),
+        () -> assertFalse(extractor.getThumbnails().isEmpty())
+        );
+    }
+
+    @Test
+    void lockupViewModelLiveStream()
+            throws FileNotFoundException, JsonParserException {
+        final var json = JsonParser.object().from(new FileInputStream(getMockPath(
+                YoutubeStreamInfoItemTest.class, "lockupViewModelLiveStream") + ".json"));
+        final var timeAgoParser = TimeAgoPatternsManager.getTimeAgoParserFor(Localization.DEFAULT);
+        final var extractor = new YoutubeStreamInfoItemLockupExtractor(json, timeAgoParser);
+        assertAll(
+        () -> assertEquals(StreamType.LIVE_STREAM, extractor.getStreamType()),
+        () -> assertFalse(extractor.isAd()),
+        () -> assertEquals("https://www.youtube.com/watch?v=LIVE_VIDEO_ID", extractor.getUrl()),
+        () -> assertEquals("LIVE_VIDEO_TITLE", extractor.getName()),
+        () -> assertEquals(-1, extractor.getDuration()),
+        () -> assertNull(extractor.getTextualUploadDate()),
+        () -> assertNull(extractor.getUploadDate()),
+        () -> assertEquals(0, extractor.getViewCount()),
+        () -> assertFalse(extractor.getThumbnails().isEmpty())
+        );
+    }
+
+    @Test
+    void lockupViewModelNoDuration()
+            throws FileNotFoundException, JsonParserException {
+        final var json = JsonParser.object().from(new FileInputStream(getMockPath(
+                YoutubeStreamInfoItemTest.class, "lockupViewModelNoDuration") + ".json"));
+        final var timeAgoParser = TimeAgoPatternsManager.getTimeAgoParserFor(Localization.DEFAULT);
+        final var extractor = new YoutubeStreamInfoItemLockupExtractor(json, timeAgoParser);
+        assertAll(
+        () -> assertEquals(StreamType.VIDEO_STREAM, extractor.getStreamType()),
+        () -> assertFalse(extractor.isAd()),
+        () -> assertEquals(-1, extractor.getDuration()),
+        () -> assertFalse(extractor.getThumbnails().isEmpty())
+        );
+    }
+
+    /**
+     * Tests that the info row search correctly extracts date and view count
+     * from the 1-row channel format where parts are in normal order: [views, date].
+     */
+    @Test
+    void lockupViewModelOneRowNormal()
+            throws FileNotFoundException, JsonParserException {
+        final var json = JsonParser.object().from(new FileInputStream(getMockPath(
+                YoutubeStreamInfoItemTest.class, "lockupViewModelOneRowNormal") + ".json"));
+        final var timeAgoParser = TimeAgoPatternsManager.getTimeAgoParserFor(Localization.DEFAULT);
+        final var extractor = new YoutubeStreamInfoItemLockupExtractor(json, timeAgoParser) {
+            // Channel tabs use 1-row format at index 0
+            @Override
+            protected int getInfoMetadataRowIndex() {
+                return 0;
+            }
+        };
+        assertAll(
+        () -> assertEquals(StreamType.VIDEO_STREAM, extractor.getStreamType()),
+        () -> assertEquals("Test Video One Row Normal", extractor.getName()),
+        () -> assertEquals("2 hours ago", extractor.getTextualUploadDate()),
+        () -> assertNotNull(extractor.getUploadDate()),
+        () -> assertEquals(3600000, extractor.getViewCount()), // 3.6m views
+        () -> assertEquals(630, extractor.getDuration()) // 10:30
+        );
+    }
+
+    /**
+     * Tests that the info row search correctly extracts date and view count
+     * from the 1-row channel format where parts are in reversed order: [date, views].
+     */
+    @Test
+    void lockupViewModelOneRowReversed()
+            throws FileNotFoundException, JsonParserException {
+        final var json = JsonParser.object().from(new FileInputStream(getMockPath(
+                YoutubeStreamInfoItemTest.class, "lockupViewModelOneRowReversed") + ".json"));
+        final var timeAgoParser = TimeAgoPatternsManager.getTimeAgoParserFor(Localization.DEFAULT);
+        final var extractor = new YoutubeStreamInfoItemLockupExtractor(json, timeAgoParser) {
+            // Channel tabs use 1-row format at index 0
+            @Override
+            protected int getInfoMetadataRowIndex() {
+                return 0;
+            }
+        };
+        assertAll(
+        () -> assertEquals(StreamType.VIDEO_STREAM, extractor.getStreamType()),
+        () -> assertEquals("Test Video One Row Reversed", extractor.getName()),
+        () -> assertEquals("1 day ago", extractor.getTextualUploadDate()),
+        () -> assertNotNull(extractor.getUploadDate()),
+        () -> assertEquals(1200, extractor.getViewCount()), // 1.2K views
+        () -> assertEquals(300, extractor.getDuration()) // 5:00
+        );
+    }
+
+    /**
+     * Tests that the info row search handles 1-row format with only view count
+     * (no date text present) - e.g. for livestreams with watching count only.
+     */
+    @Test
+    void lockupViewModelOneRowViewsOnly()
+            throws FileNotFoundException, JsonParserException {
+        final var json = JsonParser.object().from(new FileInputStream(getMockPath(
+                YoutubeStreamInfoItemTest.class, "lockupViewModelOneRowViewsOnly") + ".json"));
+        final var timeAgoParser = TimeAgoPatternsManager.getTimeAgoParserFor(Localization.DEFAULT);
+        final var extractor = new YoutubeStreamInfoItemLockupExtractor(json, timeAgoParser) {
+            // Channel tabs use 1-row format at index 0
+            @Override
+            protected int getInfoMetadataRowIndex() {
+                return 0;
+            }
+        };
+        assertAll(
+        () -> assertEquals(StreamType.LIVE_STREAM, extractor.getStreamType()),
+        () -> assertEquals("Test Video One Row Views Only", extractor.getName()),
+        () -> assertNull(extractor.getTextualUploadDate()),
+        () -> assertNull(extractor.getUploadDate()),
+        () -> assertEquals(500, extractor.getViewCount()), // 500 watching
+        () -> assertEquals(-1, extractor.getDuration())
+        );
+    }
+
+    @Test
+    void emptyTitle() throws FileNotFoundException, JsonParserException {
+        final var json = JsonParser.object().from(new FileInputStream(getMockPath(
+                YoutubeStreamInfoItemTest.class, "emptyTitle") + ".json"));
+        final var timeAgoParser = TimeAgoPatternsManager.getTimeAgoParserFor(Localization.DEFAULT);
+        final var extractor = new YoutubeStreamInfoItemExtractor(json, timeAgoParser);
+        assertAll(
+                () -> assertEquals(StreamType.VIDEO_STREAM, extractor.getStreamType()),
+                () -> assertFalse(extractor.isAd()),
+                () -> assertEquals("https://www.youtube.com/watch?v=nc1kN8ZSfGQ", extractor.getUrl()),
+                () -> assertEquals("", extractor.getName()),
+                () -> assertEquals(39, extractor.getDuration()),
+                () -> assertEquals("hyper", extractor.getUploaderName()),
+                () -> assertEquals("https://www.youtube.com/channel/UCSezUnbvCLYBXuUlPcXU_QQ", extractor.getUploaderUrl()),
+                () -> assertFalse(extractor.getUploaderAvatars().isEmpty()),
+                () -> assertTrue(extractor.isUploaderVerified()),
+                () -> assertEquals("8 years ago", extractor.getTextualUploadDate()),
+                () -> assertNotNull(extractor.getUploadDate()),
+                () -> assertTrue(extractor.getViewCount() >= 1318193),
+                () -> assertFalse(extractor.getThumbnails().isEmpty()),
+                () -> assertNull(extractor.getShortDescription()),
+                () -> assertFalse(extractor.isShortFormContent())
+        );
+    }
 }
