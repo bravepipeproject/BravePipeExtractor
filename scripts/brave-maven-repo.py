@@ -13,6 +13,11 @@
 #   * drop {build,settings}.gradle and use {build,settings}.build.kts
 #   * only change files if not already updated
 #   * also set isFailOnError = false for task Javadoc in build.gradle.kts
+# - v1.1.2 (20260525):
+#   * adjust to publishReleasePublicationToMavenLocal and mavenGroupId
+#     used by NewPipeExtractor extractor/build.gradle.kts upstream
+#   * add --custom-task to eg specifiy alternative to
+#     publishReleasePublicationToMavenLocal eg.: publishToMavenLocal
 
 """
 This script automates the version update and local Maven publishing process
@@ -31,7 +36,8 @@ Features:
   using a safe and race-condition-free cleanup mechanism.
 - Starts and stops the Gradle daemon only for the duration of the script
   to avoid interfering with other Gradle processes.
-- Publishes a predefined list of subprojects using `publishToMavenLocal`.
+- Publishes a predefined list of subprojects using
+  `publishReleasePublicationToMavenLocal`.or use --custom-task to specifiy
 - adjust Constants as needed.
 
 Intended for internal use to prepare and publish BravePipe artifacts locally
@@ -63,8 +69,16 @@ PROJECTS = ["extractor"] #, "timeago-generator", "timeago-parser"]
 DAEMON_PID_FILE = ".gradle-daemon-pid"
 PROJECT_GROUP = "com.github.bravepipeproject"
 ROOT_PROJECT_NAME = "BravePipeExtractor"
+PUBLISH_TASK="publishReleasePublicationToMavenLocal"
 
 ARGS = None  # global parsed args
+
+def get_task_name():
+    if ARGS and ARGS.custom_task:
+        print(f"🏷  Using custom task from CLI: {ARGS.custom_task}")
+        return ARGS.custom_task
+    else:
+        return PUBLISH_TASK
 
 def get_git_tag():
     if ARGS and ARGS.custom_tag:
@@ -124,13 +138,13 @@ def update_settings_gradle_kts():
 
 def update_extractor_build_gradle_kts():
     content = EXT_BUILD_FILE.read_text()
-    wanted = f'groupId = "{PROJECT_GROUP}"'
+    wanted = f'val mavenGroupId = "{PROJECT_GROUP}"'
 
     if wanted in content:
         print(f"✔ Already Updated {EXT_BUILD_FILE} with {wanted}")
         return
 
-    content = re.sub(r"groupId\s*=\s*['\"].*?['\"]", wanted, content)
+    content = re.sub(r"val mavenGroupId\s*=\s*['\"].*?['\"]", wanted, content)
     EXT_BUILD_FILE.write_text(content)
     print(f"✔ Updated {EXT_BUILD_FILE} with {wanted}")
 
@@ -187,7 +201,7 @@ def publish_projects():
     for project in PROJECTS:
         print(f"🚀 Publishing {project} ...")
         prefix_project = f":{project}" if project else ""
-        result = subprocess.run([GRADLE_BIN, f"{prefix_project}:publishToMavenLocal", "--stacktrace"])
+        result = subprocess.run([GRADLE_BIN, f"{prefix_project}:{get_task_name()}", "--stacktrace"])
         if result.returncode != 0:
             raise RuntimeError(f"❌ Failed to publish {project} with return code {result.returncode}")
 
@@ -269,6 +283,8 @@ def main():
                         help="Do not create a tarball of the published Maven repository")
     parser.add_argument("--custom-tag", type=str,
                         help="Use a custom tag instead of detecting from git")
+    parser.add_argument("--custom-task", type=str,
+                        help=f"Use a custom task instead of default: '{PUBLISH_TASK}'")
     ARGS = parser.parse_args()
 
     if not ARGS.write_to_current_m2 and Path(MAVEN_REPO_TEMP).exists():
