@@ -414,8 +414,14 @@ public class YoutubeStreamInfoItemLockupExtractor implements StreamInfoItemExtra
         throw new ParsingException("Failed to determine channel image view model");
     }
 
-    private Optional<JsonObject> metadataPart(final int rowIndex, final int partIndex) {
-        return getMetadataRows()
+    private Optional<JsonObject> metadataPart(final int rowIndex, final int partIndex)
+        throws ParsingException {
+        if (cachedMetadataRows == null) {
+            cachedMetadataRows = JsonUtils.getArray(lockupViewModel,
+                "metadata.lockupMetadataViewModel.metadata"
+                    + ".contentMetadataViewModel.metadataRows");
+        }
+        return cachedMetadataRows
             .streamAsJsonObjects()
             .skip(rowIndex)
             .limit(1)
@@ -439,27 +445,19 @@ public class YoutubeStreamInfoItemLockupExtractor implements StreamInfoItemExtra
         return 1;
     }
 
-    private JsonArray getMetadataRows() {
-        if (cachedMetadataRows == null) {
-            try {
-                cachedMetadataRows = JsonUtils.getArray(lockupViewModel,
-                    "metadata.lockupMetadataViewModel.metadata"
-                        + ".contentMetadataViewModel.metadataRows");
-            } catch (final ParsingException e) {
-                // Some lockups don't have metadata rows at all
-                cachedMetadataRows = new JsonArray();
-            }
-        }
-        return cachedMetadataRows;
-    }
-
     /**
      * Searches the metadata parts of a specific row for text matching the given predicate.
      * This handles variable part order (e.g. [views, date] vs [date, views]) within a row.
      */
     private Optional<String> findMetadataPartInRow(final int rowIndex,
-                                                   @Nonnull final Predicate<String> predicate) {
-        return getMetadataRows()
+                                                   @Nonnull final Predicate<String> predicate)
+            throws ParsingException {
+        if (cachedMetadataRows == null) {
+            cachedMetadataRows = JsonUtils.getArray(lockupViewModel,
+                "metadata.lockupMetadataViewModel.metadata"
+                    + ".contentMetadataViewModel.metadataRows");
+        }
+        return cachedMetadataRows
             .streamAsJsonObjects()
             .skip(rowIndex)
             .limit(1)
@@ -475,8 +473,14 @@ public class YoutubeStreamInfoItemLockupExtractor implements StreamInfoItemExtra
      * Used as a fallback when the info row doesn't contain the expected data,
      * e.g. for livestreams with only 1 metadata row in search results.
      */
-    private Optional<String> findMetadataPartInAllRows(@Nonnull final Predicate<String> predicate) {
-        return getMetadataRows()
+    private Optional<String> findMetadataPartInAllRows(@Nonnull final Predicate<String> predicate)
+            throws ParsingException {
+        if (cachedMetadataRows == null) {
+            cachedMetadataRows = JsonUtils.getArray(lockupViewModel,
+                "metadata.lockupMetadataViewModel.metadata"
+                    + ".contentMetadataViewModel.metadataRows");
+        }
+        return cachedMetadataRows
             .streamAsJsonObjects()
             .flatMap(jsonObject -> jsonObject.getArray("metadataParts")
                 .streamAsJsonObjects())
