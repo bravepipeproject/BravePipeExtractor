@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Checkout Maven Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: bravepipeproject/maven-repo
           token: ${{ secrets.MAVEN_REPO_PAT }}
@@ -25,7 +25,7 @@ jobs:
           mv maven-repo ~/.m2
 
       - name: Checkout Build Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           path: build-repo
 
