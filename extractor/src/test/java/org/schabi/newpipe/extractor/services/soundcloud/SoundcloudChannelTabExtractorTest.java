@@ -25,7 +25,7 @@ class SoundcloudChannelTabExtractorTest {
         }
 
         @Override public StreamingService expectedService() throws Exception { return SoundCloud; }
-        @Override public String expectedName() throws Exception { return ChannelTabs.TRACKS; }
+        @Override public String expectedName() throws Exception { return ChannelTabs.TRACKS.getNameId().name(); }
         @Override public String expectedId() throws Exception { return "10494998"; }
         @Override public String expectedUrlContains() throws Exception { return "https://soundcloud.com/liluzivert/tracks"; }
         @Override public String expectedOriginalUrlContains() throws Exception { return "https://soundcloud.com/liluzivert/tracks"; }
@@ -46,7 +46,7 @@ class SoundcloudChannelTabExtractorTest {
         }
 
         @Override public StreamingService expectedService() throws Exception { return SoundCloud; }
-        @Override public String expectedName() throws Exception { return ChannelTabs.PLAYLISTS; }
+        @Override public String expectedName() throws Exception { return ChannelTabs.PLAYLISTS.getNameId().name(); }
         @Override public String expectedId() throws Exception { return "157193072"; }
         @Override public String expectedUrlContains() throws Exception { return "https://soundcloud.com/neffexmusic/sets"; }
         @Override public String expectedOriginalUrlContains() throws Exception { return "https://soundcloud.com/neffexmusic/sets"; }
@@ -60,7 +60,7 @@ class SoundcloudChannelTabExtractorTest {
         }
 
         @Override public StreamingService expectedService() throws Exception { return SoundCloud; }
-        @Override public String expectedName() throws Exception { return ChannelTabs.ALBUMS; }
+        @Override public String expectedName() throws Exception { return ChannelTabs.ALBUMS.getNameId().name(); }
         @Override public String expectedId() throws Exception { return "4803918"; }
         @Override public String expectedUrlContains() throws Exception { return "https://soundcloud.com/bigsean-1/albums"; }
         @Override public String expectedOriginalUrlContains() throws Exception { return "https://soundcloud.com/bigsean-1/albums"; }
@@ -74,7 +74,7 @@ class SoundcloudChannelTabExtractorTest {
         }
 
         @Override public StreamingService expectedService() throws Exception { return SoundCloud; }
-        @Override public String expectedName() throws Exception { return ChannelTabs.LIKES; }
+        @Override public String expectedName() throws Exception { return ChannelTabs.LIKES.getNameId().name(); }
         @Override public String expectedId() throws Exception { return "30854092"; }
         @Override public String expectedUrlContains() throws Exception { return "https://soundcloud.com/lubenitza/likes"; }
         @Override public String expectedOriginalUrlContains() throws Exception { return "https://soundcloud.com/lubenitza/likes"; }
@@ -88,7 +88,7 @@ class SoundcloudChannelTabExtractorTest {
         }
 
         @Override public StreamingService expectedService() throws Exception { return SoundCloud; }
-        @Override public String expectedName() throws Exception { return ChannelTabs.LIKES; }
+        @Override public String expectedName() throws Exception { return ChannelTabs.LIKES.getNameId().name(); }
         @Override public String expectedId() throws Exception { return "1280839267"; }
         @Override public String expectedUrlContains() throws Exception { return "https://soundcloud.com/soreen-735855039/likes"; }
         @Override public String expectedOriginalUrlContains() throws Exception { return "https://soundcloud.com/soreen-735855039/likes"; }

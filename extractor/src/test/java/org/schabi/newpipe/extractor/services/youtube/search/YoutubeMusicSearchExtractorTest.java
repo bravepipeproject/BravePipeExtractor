@@ -7,9 +7,10 @@ import org.junit.jupiter.api.Disabled;
 import org.schabi.newpipe.extractor.InfoItem;
 import org.schabi.newpipe.extractor.StreamingService;
 import org.schabi.newpipe.extractor.search.SearchExtractor;
+import org.schabi.newpipe.extractor.search.filter.FilterItem;
 import org.schabi.newpipe.extractor.services.DefaultSearchExtractorTest;
 import org.schabi.newpipe.extractor.services.youtube.InitYoutubeTest;
-import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQueryHandlerFactory;
+import org.schabi.newpipe.extractor.services.youtube.search.filter.YoutubeFilters;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -25,7 +26,9 @@ public class YoutubeMusicSearchExtractorTest {
 
         @Override
         protected SearchExtractor createExtractor() throws Exception {
-            return YouTube.getSearchExtractor(QUERY, singletonList(YoutubeSearchQueryHandlerFactory.MUSIC_SONGS), "");
+            final FilterItem item =
+                    getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_YOUTUBE_MUSIC_SONGS);
+            return YouTube.getSearchExtractor(QUERY, singletonList(item), null);
         }
 
         @Override public StreamingService expectedService() { return YouTube; }
@@ -43,7 +46,9 @@ public class YoutubeMusicSearchExtractorTest {
 
         @Override
         protected SearchExtractor createExtractor() throws Exception {
-            return YouTube.getSearchExtractor(QUERY, singletonList(YoutubeSearchQueryHandlerFactory.MUSIC_VIDEOS), "");
+            final FilterItem item =
+                    getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_YOUTUBE_MUSIC_VIDEOS);
+            return YouTube.getSearchExtractor(QUERY, singletonList(item), null);
         }
 
         @Override public StreamingService expectedService() { return YouTube; }
@@ -63,7 +68,9 @@ public class YoutubeMusicSearchExtractorTest {
 
         @Override
         protected SearchExtractor createExtractor() throws Exception {
-            return YouTube.getSearchExtractor(QUERY, singletonList(YoutubeSearchQueryHandlerFactory.MUSIC_ALBUMS), "");
+            final FilterItem item =
+                    getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_YOUTUBE_MUSIC_ALBUMS);
+            return YouTube.getSearchExtractor(QUERY, singletonList(item), null);
         }
 
         @Override public StreamingService expectedService() { return YouTube; }
@@ -81,7 +88,9 @@ public class YoutubeMusicSearchExtractorTest {
 
         @Override
         protected SearchExtractor createExtractor() throws Exception {
-            return YouTube.getSearchExtractor(QUERY, singletonList(YoutubeSearchQueryHandlerFactory.MUSIC_PLAYLISTS), "");
+            final FilterItem item =
+                    getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_YOUTUBE_MUSIC_PLAYLISTS);
+            return YouTube.getSearchExtractor(QUERY, singletonList(item), null);
         }
 
         @Override public StreamingService expectedService() { return YouTube; }
@@ -99,7 +108,9 @@ public class YoutubeMusicSearchExtractorTest {
 
         @Override
         protected SearchExtractor createExtractor() throws Exception {
-            return YouTube.getSearchExtractor(QUERY, singletonList(YoutubeSearchQueryHandlerFactory.MUSIC_ARTISTS), "");
+            final FilterItem item =
+                    getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_YOUTUBE_MUSIC_ARTISTS);
+            return YouTube.getSearchExtractor(QUERY, singletonList(item), null);
         }
 
         @Override public StreamingService expectedService() { return YouTube; }
@@ -119,7 +130,9 @@ public class YoutubeMusicSearchExtractorTest {
 
         @Override
         protected SearchExtractor createExtractor() throws Exception {
-            return YouTube.getSearchExtractor(QUERY, singletonList(YoutubeSearchQueryHandlerFactory.MUSIC_SONGS), "");
+            final FilterItem item =
+                    getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_YOUTUBE_MUSIC_SONGS);
+            return YouTube.getSearchExtractor(QUERY, singletonList(item), null);
         }
 
         @Override public StreamingService expectedService() { return YouTube; }
@@ -138,7 +151,9 @@ public class YoutubeMusicSearchExtractorTest {
 
         @Override
         protected SearchExtractor createExtractor() throws Exception {
-            return YouTube.getSearchExtractor(QUERY, singletonList(YoutubeSearchQueryHandlerFactory.MUSIC_SONGS), "");
+            final FilterItem item =
+                    getFilterItem(YouTube, YoutubeFilters.ID_CF_MAIN_YOUTUBE_MUSIC_SONGS);
+            return YouTube.getSearchExtractor(QUERY, singletonList(item), null);
         }
 
         @Override public StreamingService expectedService() { return YouTube; }

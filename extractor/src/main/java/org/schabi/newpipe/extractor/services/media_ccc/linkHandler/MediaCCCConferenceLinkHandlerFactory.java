@@ -1,11 +1,15 @@
 package org.schabi.newpipe.extractor.services.media_ccc.linkHandler;
 
-import org.schabi.newpipe.extractor.channel.tabs.ChannelTabs;
+import org.schabi.newpipe.extractor.search.filter.FilterItem;
+
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
 import org.schabi.newpipe.extractor.linkhandler.ListLinkHandlerFactory;
 import org.schabi.newpipe.extractor.utils.Parser;
 
 import java.util.List;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Since MediaCCC does not really have channel tabs (i.e. it only has one single "tab" with videos),
@@ -16,7 +20,6 @@ public final class MediaCCCConferenceLinkHandlerFactory extends ListLinkHandlerF
 
     private static final MediaCCCConferenceLinkHandlerFactory INSTANCE
             = new MediaCCCConferenceLinkHandlerFactory();
-
     public static final String CONFERENCE_API_ENDPOINT
             = "https://api.media.ccc.de/public/conferences/";
     public static final String CONFERENCE_PATH = "https://media.ccc.de/c/";
@@ -33,8 +36,8 @@ public final class MediaCCCConferenceLinkHandlerFactory extends ListLinkHandlerF
 
     @Override
     public String getUrl(final String id,
-                         final List<String> contentFilter,
-                         final String sortFilter)
+                         @Nonnull final List<FilterItem> contentFilter,
+                         @Nullable final List<FilterItem> sortFilter)
             throws ParsingException, UnsupportedOperationException {
         return CONFERENCE_PATH + id;
     }
@@ -51,16 +54,5 @@ public final class MediaCCCConferenceLinkHandlerFactory extends ListLinkHandlerF
         } catch (final ParsingException e) {
             return false;
         }
-    }
-
-    /**
-     * @see MediaCCCConferenceLinkHandlerFactory
-     * @return MediaCCC's only channel "tab", i.e. {@link ChannelTabs#VIDEOS}
-     */
-    @Override
-    public String[] getAvailableContentFilter() {
-        return new String[]{
-                ChannelTabs.VIDEOS,
-        };
     }
 }

@@ -338,8 +338,20 @@ public final class SoundcloudParsingHelper {
         final JsonArray responseCollection = responseObject.getArray("collection");
         for (final Object o : responseCollection) {
             if (o instanceof JsonObject) {
+                boolean isChartsLike = charts;
                 final JsonObject object = (JsonObject) o;
-                collector.commit(new SoundcloudStreamInfoItemExtractor(charts
+
+                // in case we're looking into the reposts endpoint
+                if (!isChartsLike && object.has("track")
+                        && object.getObject("track").has("full_duration")) {
+                    isChartsLike = true;
+                }
+                // skip if the json_object is not an actual track object
+                if (!isChartsLike && !object.has("full_duration")) {
+                    continue;
+                }
+
+                collector.commit(new SoundcloudStreamInfoItemExtractor(isChartsLike
                         ? object.getObject("track") : object));
             }
         }

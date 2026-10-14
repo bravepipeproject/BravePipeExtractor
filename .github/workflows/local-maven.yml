@@ -1,0 +1,57 @@
+# build BravePipeExtractor and publish it to a custom maven repo
+name: Publish to Maven Repo
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Maven Repo
+        uses: actions/checkout@v4
+        with:
+          repository: bravepipeproject/maven-repo
+          token: ${{ secrets.MAVEN_REPO_PAT }}
+          path: maven-repo
+
+      - name: Move Maven repo to ~/.m2
+        run: |
+          rm -rf ~/.m2
+          mv maven-repo ~/.m2
+
+      - name: Checkout Build Repo
+        uses: actions/checkout@v4
+        with:
+          path: build-repo
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Get git tag
+        working-directory: build-repo
+        run: echo "GIT_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
+
+      - name: Run Brave Maven Repo script
+        working-directory: build-repo
+        run: |
+          python3 ./scripts/brave-maven-repo.py --no-tarball --write-to-current-m2 --custom-tag "$GIT_TAG"
+
+      - name: Commit and Push Maven Repo changes
+        env:
+          GIT_TAG: ${{ env.GIT_TAG }}
+        run: |
+          cd ~/.m2/
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add repository
+          git commit -m "BravePipeExtractor-$GIT_TAG" || echo "No changes to commit"
+          git push
+

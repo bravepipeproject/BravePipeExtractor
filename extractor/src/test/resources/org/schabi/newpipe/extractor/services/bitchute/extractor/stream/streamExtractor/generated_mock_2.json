@@ -1,0 +1,145 @@
+{
+  "request": {
+    "httpMethod": "POST",
+    "url": "https://www.bitchute.com/video/m4iEhq4L1qU/counts/",
+    "headers": {
+      "Cookie": [
+        "csrftoken\u003d1pRUNkcUNT74XKFIVT1Bh6GySJehKTXmbXHDASdSfjFk0Sz7adpg6HxiK99taYmI;"
+      ],
+      "Referer": [
+        "https://www.bitchute.com/"
+      ],
+      "Content-Length": [
+        "84"
+      ],
+      "Content-Type": [
+        "application/x-www-form-urlencoded"
+      ],
+      "Accept-Language": [
+        "en-GB, en;q\u003d0.9"
+      ]
+    },
+    "dataToSend": [
+      99,
+      115,
+      114,
+      102,
+      109,
+      105,
+      100,
+      100,
+      108,
+      101,
+      119,
+      97,
+      114,
+      101,
+      116,
+      111,
+      107,
+      101,
+      110,
+      61,
+      49,
+      112,
+      82,
+      85,
+      78,
+      107,
+      99,
+      85,
+      78,
+      84,
+      55,
+      52,
+      88,
+      75,
+      70,
+      73,
+      86,
+      84,
+      49,
+      66,
+      104,
+      54,
+      71,
+      121,
+      83,
+      74,
+      101,
+      104,
+      75,
+      84,
+      88,
+      109,
+      98,
+      88,
+      72,
+      68,
+      65,
+      83,
+      100,
+      83,
+      102,
+      106,
+      70,
+      107,
+      48,
+      83,
+      122,
+      55,
+      97,
+      100,
+      112,
+      103,
+      54,
+      72,
+      120,
+      105,
+      75,
+      57,
+      57,
+      116,
+      97,
+      89,
+      109,
+      73
+    ],
+    "localization": {
+      "languageCode": "en",
+      "countryCode": "GB"
+    }
+  },
+  "response": {
+    "responseCode": 200,
+    "responseMessage": "",
+    "responseHeaders": {
+      "cf-cache-status": [
+        "DYNAMIC"
+      ],
+      "cf-ray": [
+        "7fed4f8daf0430f6-FRA"
+      ],
+      "content-type": [
+        "application/json"
+      ],
+      "date": [
+        "Wed, 30 Aug 2023 13:16:52 GMT"
+      ],
+      "server": [
+        "cloudflare"
+      ],
+      "x-content-type-options": [
+        "nosniff"
+      ],
+      "x-frame-options": [
+        "DENY"
+      ],
+      "x-xss-protection": [
+        "1; mode\u003dblock"
+      ]
+    },
+    "responseBody": "{\"success\": true, \"view_count\": 405, \"like_count\": 7, \"dislike_count\": 10, \"subscriber_count\": 13782}",
+    "latestUrl": "https://www.bitchute.com/video/m4iEhq4L1qU/counts/"
+  }
+}

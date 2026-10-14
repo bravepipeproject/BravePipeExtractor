@@ -2,7 +2,6 @@ package org.schabi.newpipe.extractor.services.peertube.search;
 
 import static org.schabi.newpipe.extractor.ServiceList.PeerTube;
 import static org.schabi.newpipe.extractor.services.DefaultTests.assertNoDuplicatedItems;
-import static org.schabi.newpipe.extractor.services.peertube.linkHandler.PeertubeSearchQueryHandlerFactory.VIDEOS;
 import static java.util.Collections.singletonList;
 
 import org.junit.jupiter.api.Test;
@@ -10,10 +9,11 @@ import org.schabi.newpipe.extractor.InfoItem;
 import org.schabi.newpipe.extractor.ListExtractor.InfoItemsPage;
 import org.schabi.newpipe.extractor.StreamingService;
 import org.schabi.newpipe.extractor.search.SearchExtractor;
+import org.schabi.newpipe.extractor.search.filter.FilterItem;
 import org.schabi.newpipe.extractor.services.DefaultSearchExtractorTest;
 import org.schabi.newpipe.extractor.services.DefaultSimpleExtractorTest;
 import org.schabi.newpipe.extractor.services.peertube.PeertubeInstance;
-import org.schabi.newpipe.extractor.services.peertube.linkHandler.PeertubeSearchQueryHandlerFactory;
+import org.schabi.newpipe.extractor.services.peertube.search.filter.PeertubeFilters;
 
 import javax.annotation.Nullable;
 
@@ -45,7 +45,9 @@ public class PeertubeSearchExtractorTest {
         protected SearchExtractor createExtractor() throws Exception {
             // setting instance might break test when running in parallel
             PeerTube.setInstance(new PeertubeInstance("https://framatube.org", "Framatube"));
-            return PeerTube.getSearchExtractor(QUERY, singletonList(PeertubeSearchQueryHandlerFactory.SEPIA_VIDEOS), "");
+            final FilterItem item = DefaultSearchExtractorTest.getFilterItem(
+                    PeerTube, PeertubeFilters.ID_CF_SEPIA_SEPIASEARCH);
+            return PeerTube.getSearchExtractor(QUERY, singletonList(item), null);
         }
 
         @Override public StreamingService expectedService() { return PeerTube; }
@@ -61,7 +63,9 @@ public class PeertubeSearchExtractorTest {
 
         @Override
         protected SearchExtractor createExtractor() throws Exception {
-            return PeerTube.getSearchExtractor("internet", singletonList(VIDEOS), "");
+            final FilterItem item = DefaultSearchExtractorTest.getFilterItem(
+                    PeerTube, PeertubeFilters.ID_CF_MAIN_VIDEOS);
+            return PeerTube.getSearchExtractor("internet", singletonList(item), null);
         }
 
         @Test

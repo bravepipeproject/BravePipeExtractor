@@ -1,0 +1,47 @@
+{
+  "request": {
+    "httpMethod": "GET",
+    "url": "https://rumble.com/embedJS/u3/?request\u003dvideo\u0026ver\u003d2\u0026v\u003dv3bnmgo",
+    "headers": {
+      "Accept-Language": [
+        "en-GB, en;q\u003d0.9"
+      ]
+    },
+    "localization": {
+      "languageCode": "en",
+      "countryCode": "GB"
+    }
+  },
+  "response": {
+    "responseCode": 200,
+    "responseMessage": "",
+    "responseHeaders": {
+      "access-control-allow-origin": [
+        "*"
+      ],
+      "cache-control": [
+        "private,max-age\u003d1"
+      ],
+      "content-type": [
+        "application/json; charset\u003dutf-8"
+      ],
+      "date": [
+        "Wed, 06 Sep 2023 08:30:24 GMT"
+      ],
+      "link": [
+        "\u003chttps://rumble.com/v3e90sa-america-1st-news-and-politics-live-tv-maga-media.html\u003e; rel\u003d\"canonical\""
+      ],
+      "server": [
+        "nginx"
+      ],
+      "strict-transport-security": [
+        "max-age\u003d31536000;includeSubDomains;preload"
+      ],
+      "vary": [
+        "Accept-Encoding"
+      ]
+    },
+    "responseBody": "{\"fps\":30,\"w\":1920,\"h\":1080,\"u\":{\"hls\":{\"url\":\"https://rumble.com/live-hls-dvr/3bnmgo/playlist.m3u8\",\"meta\":{\"live\":true,\"hlsJsConfig\":{\"liveSyncDuration\":6,\"min_latency\":3}}}},\"ua\":{\"mp4\":[],\"webm\":[],\"hls\":{\"auto\":{\"url\":\"https://rumble.com/live-hls-dvr/3bnmgo/playlist.m3u8\",\"meta\":{\"live\":true,\"hlsJsConfig\":{\"liveSyncDuration\":6,\"min_latency\":3}}}}},\"i\":\"https://sp.rmbl.ws/s8/1/C/V/a/i/CVail.qR4e-small-America-First-News-and-Poli.jpg\",\"evt\":{\"v\":\"/l/view...3bnmgo.2o3ttg\",\"e\":\"/l/pte...3bnmgo.101nq4z\",\"wt\":0},\"cc\":[],\"l\":\"/v3e90sa-america-1st-news-and-politics-live-tv-maga-media.html\",\"r\":0,\"title\":\"America 1st News \u0026amp; Politics Live TV | MAGA Media\",\"author\":{\"name\":\"Patriot News Outlet Live\",\"url\":\"https://rumble.com/c/PatriotNews4u\"},\"player\":false,\"duration\":0,\"pubDate\":\"2023-09-02T23:01:40+00:00\",\"loaded\":1,\"vid\":200976504,\"timeline\":[0,0],\"own\":false,\"restrict\":[-3,0],\"autoplay\":1,\"track\":0,\"live\":1,\"live_placeholder\":false,\"livestream_has_dvr\":true,\"a\":{\"timeout\":-1,\"u\":\"3\",\"aden\":[1,0,1],\"ov\":false,\"ads\":[{\"timecode\":0,\"linear\":1,\"type\":\"video\",\"autoplay\":-1,\"waterfall\":[{\"url\":\"https://a-delivery.rmbl.ws/video?a\u003d15\u0026cuid\u003d27104327\u0026cvid\u003d200976504\u0026keywords\u003dPatriotNews4u%2CPatriot%2CNews%2COutlet%2CLive%2CAmerica%2C1st%2C%26%2CPolitics%2CTV%2C%7C%2CMAGA%2CMedia\u0026cpid\u003d3\u0026ccid\u003d563825\u0026categories\u003dNews%2Crepublican-politics\",\"sys\":15,\"autoplay\":0},{\"url\":\"https://a-delivery.rmbl.ws/video?a\u003d15\u0026cuid\u003d27104327\u0026cvid\u003d200976504\u0026keywords\u003dPatriotNews4u%2CPatriot%2CNews%2COutlet%2CLive%2CAmerica%2C1st%2C%26%2CPolitics%2CTV%2C%7C%2CMAGA%2CMedia\u0026cpid\u003d3\u0026ccid\u003d563825\u0026categories\u003dNews%2Crepublican-politics\",\"sys\":15,\"autoplay\":1}]}],\"a\":\".3.g4xtz.3bnmgo.c.3e.1n9hjwx\",\"ae\":\".3.g4xtz.3bnmgo.c.3e.1fm0vlw\",\"ap\":[false,0],\"loop\":[]}}",
+    "latestUrl": "https://rumble.com/embedJS/u3/?request\u003dvideo\u0026ver\u003d2\u0026v\u003dv3bnmgo"
+  }
+}

@@ -1,5 +1,7 @@
 package org.schabi.newpipe.extractor;
 
+import org.schabi.newpipe.extractor.search.filter.FilterItem;
+
 import org.schabi.newpipe.extractor.channel.ChannelExtractor;
 import org.schabi.newpipe.extractor.channel.tabs.ChannelTabExtractor;
 import org.schabi.newpipe.extractor.comments.CommentsExtractor;
@@ -19,6 +21,8 @@ import org.schabi.newpipe.extractor.localization.TimeAgoParser;
 import org.schabi.newpipe.extractor.localization.TimeAgoPatternsManager;
 import org.schabi.newpipe.extractor.playlist.PlaylistExtractor;
 import org.schabi.newpipe.extractor.search.SearchExtractor;
+import org.schabi.newpipe.extractor.services.rumble.settings.RumbleSettings;
+import org.schabi.newpipe.extractor.settings.ServiceSettings;
 import org.schabi.newpipe.extractor.stream.StreamExtractor;
 import org.schabi.newpipe.extractor.subscription.SubscriptionExtractor;
 import org.schabi.newpipe.extractor.suggestion.SuggestionExtractor;
@@ -247,23 +251,24 @@ public abstract class StreamingService {
     //////////////////////////////////////////////////////////////////////////*/
 
     public SearchExtractor getSearchExtractor(final String query,
-                                              final List<String> contentFilter,
-                                              final String sortFilter) throws ExtractionException {
+                                              final List<FilterItem> contentFilter,
+                                              final List<FilterItem> sortFilter)
+            throws ExtractionException {
         return getSearchExtractor(getSearchQHFactory()
                 .fromQuery(query, contentFilter, sortFilter));
     }
 
     public ChannelExtractor getChannelExtractor(final String id,
-                                                final List<String> contentFilter,
-                                                final String sortFilter)
+                                                final List<FilterItem> contentFilter,
+                                                final List<FilterItem> sortFilter)
             throws ExtractionException {
         return getChannelExtractor(getChannelLHFactory()
                 .fromQuery(id, contentFilter, sortFilter));
     }
 
     public PlaylistExtractor getPlaylistExtractor(final String id,
-                                                  final List<String> contentFilter,
-                                                  final String sortFilter)
+                                                  final List<FilterItem> contentFilter,
+                                                  final List<FilterItem> sortFilter)
             throws ExtractionException {
         return getPlaylistExtractor(getPlaylistLHFactory()
                 .fromQuery(id, contentFilter, sortFilter));
@@ -281,18 +286,18 @@ public abstract class StreamingService {
         return getChannelExtractor(getChannelLHFactory().fromUrl(url));
     }
 
-    public ChannelTabExtractor getChannelTabExtractorFromId(final String id, final String tab)
+    public ChannelTabExtractor getChannelTabExtractorFromId(final String id, final FilterItem tab)
             throws ExtractionException {
         return getChannelTabExtractor(getChannelTabLHFactory().fromQuery(
-                id, Collections.singletonList(tab), ""));
+                id, List.of(tab), List.of()));
     }
 
     public ChannelTabExtractor getChannelTabExtractorFromIdAndBaseUrl(final String id,
-                                                                      final String tab,
+                                                                      final FilterItem tab,
                                                                       final String baseUrl)
             throws ExtractionException {
         return getChannelTabExtractor(getChannelTabLHFactory().fromQuery(
-                id, Collections.singletonList(tab), "", baseUrl));
+                id, List.of(tab), List.of(), baseUrl));
     }
 
     public PlaylistExtractor getPlaylistExtractor(final String url) throws ExtractionException {
@@ -434,4 +439,19 @@ public abstract class StreamingService {
                 "Localization is not supported (\"" + localization + "\")");
     }
 
+    /**
+     *  Service specific settings.
+     *
+     *  If we want to change a specific behaviour of the extractor this is your gateway
+     *  If you want to set options from the client for a specific service you have to
+     *  override below method.
+     *
+     *  As the settings here are service specific the client code should
+     *  never assume a implementation for each service.
+     *
+     * @return will be null on the default implementation.
+     */
+    public ServiceSettings getServiceSettings() {
+        return RumbleSettings.getInstance();
+    }
 }

@@ -5,11 +5,6 @@ import static org.schabi.newpipe.extractor.services.youtube.YoutubeParsingHelper
 import static org.schabi.newpipe.extractor.services.youtube.YoutubeParsingHelper.getValidJsonResponseBody;
 import static org.schabi.newpipe.extractor.services.youtube.YoutubeParsingHelper.getYoutubeMusicClientVersion;
 import static org.schabi.newpipe.extractor.services.youtube.YoutubeParsingHelper.getYoutubeMusicHeaders;
-import static org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQueryHandlerFactory.MUSIC_ALBUMS;
-import static org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQueryHandlerFactory.MUSIC_ARTISTS;
-import static org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQueryHandlerFactory.MUSIC_PLAYLISTS;
-import static org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQueryHandlerFactory.MUSIC_SONGS;
-import static org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQueryHandlerFactory.MUSIC_VIDEOS;
 import static org.schabi.newpipe.extractor.utils.Utils.isNullOrEmpty;
 
 import com.grack.nanojson.JsonArray;
@@ -28,7 +23,10 @@ import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
 import org.schabi.newpipe.extractor.linkhandler.SearchQueryHandler;
 import org.schabi.newpipe.extractor.search.SearchExtractor;
+import org.schabi.newpipe.extractor.search.filter.FilterContainer;
+import org.schabi.newpipe.extractor.services.youtube.search.filter.YoutubeFilters;
 import org.schabi.newpipe.extractor.utils.JsonUtils;
+import org.schabi.newpipe.extractor.utils.Utils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -50,34 +48,27 @@ public class YoutubeMusicSearchExtractor extends SearchExtractor {
         super(service, linkHandler);
     }
 
+    private int getSearchTypeId() {
+        final YoutubeFilters.MusicYoutubeContentFilterItem contentFilterItem =
+                Utils.getFirstContentFilterItem(getLinkHandler());
+        if (contentFilterItem != null) {
+            return contentFilterItem.getIdentifier();
+        }
+        return FilterContainer.ITEM_IDENTIFIER_UNKNOWN;
+    }
+
     @Override
     public void onFetchPage(@Nonnull final Downloader downloader)
             throws IOException, ExtractionException {
         final String url = "https://music.youtube.com/youtubei/v1/search?"
                 + DISABLE_PRETTY_PRINT_PARAMETER;
 
-        final String params;
 
-        switch (getLinkHandler().getContentFilters().get(0)) {
-            case MUSIC_SONGS:
-                params = "Eg-KAQwIARAAGAAgACgAMABqChAEEAUQAxAKEAk%3D";
-                break;
-            case MUSIC_VIDEOS:
-                params = "Eg-KAQwIABABGAAgACgAMABqChAEEAUQAxAKEAk%3D";
-                break;
-            case MUSIC_ALBUMS:
-                params = "Eg-KAQwIABAAGAEgACgAMABqChAEEAUQAxAKEAk%3D";
-                break;
-            case MUSIC_PLAYLISTS:
-                params = "Eg-KAQwIABAAGAAgACgBMABqChAEEAUQAxAKEAk%3D";
-                break;
-            case MUSIC_ARTISTS:
-                params = "Eg-KAQwIABAAGAAgASgAMABqChAEEAUQAxAKEAk%3D";
-                break;
-            default:
-                params = null;
-                break;
-        }
+        final YoutubeFilters.MusicYoutubeContentFilterItem contentFilterItem =
+                Utils.getFirstContentFilterItem(getLinkHandler());
+        // Get the search parameter for the request. If getParams() be null
+        // (which should never happen - only in test cases), JsonWriter.string() can handle it
+        final String params = (contentFilterItem != null) ? contentFilterItem.getParams() : null;
 
         // @formatter:off
         final byte[] json = JsonWriter.string()
@@ -260,7 +251,8 @@ public class YoutubeMusicSearchExtractor extends SearchExtractor {
 
     private void collectMusicStreamsFrom(final MultiInfoItemsCollector collector,
                                          @Nonnull final JsonArray videos) {
-        final String searchType = getLinkHandler().getContentFilters().get(0);
+        final int searchTypeId = getSearchTypeId();
+
         videos.streamAsJsonObjects()
                 .map(item -> item.getObject("musicResponsiveListItemRenderer", null))
                 .filter(Objects::nonNull)
@@ -278,19 +270,19 @@ public class YoutubeMusicSearchExtractor extends SearchExtractor {
                             .getObject("text")
                             .getArray("runs");
 
-                    switch (searchType) {
-                        case MUSIC_SONGS:
-                        case MUSIC_VIDEOS:
+                    switch (searchTypeId) {
+                        case YoutubeFilters.ID_CF_MAIN_YOUTUBE_MUSIC_SONGS:
+                        case YoutubeFilters.ID_CF_MAIN_YOUTUBE_MUSIC_VIDEOS:
                             collector.commit(new YoutubeMusicSongOrVideoInfoItemExtractor(
-                                    infoItem, descriptionElements, searchType));
+                                    infoItem, descriptionElements, searchTypeId));
                             break;
-                        case MUSIC_ARTISTS:
+                        case YoutubeFilters.ID_CF_MAIN_YOUTUBE_MUSIC_ARTISTS:
                             collector.commit(new YoutubeMusicArtistInfoItemExtractor(infoItem));
                             break;
-                        case MUSIC_ALBUMS:
-                        case MUSIC_PLAYLISTS:
+                        case YoutubeFilters.ID_CF_MAIN_YOUTUBE_MUSIC_ALBUMS:
+                        case YoutubeFilters.ID_CF_MAIN_YOUTUBE_MUSIC_PLAYLISTS:
                             collector.commit(new YoutubeMusicAlbumOrPlaylistInfoItemExtractor(
-                                    infoItem, descriptionElements, searchType));
+                                    infoItem, descriptionElements, searchTypeId));
                             break;
                     }
                 });

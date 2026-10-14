@@ -29,6 +29,8 @@ public final class DownloaderTestImpl extends Downloader {
     private final RateLimitedClientWrapper clientWrapper;
 
     private DownloaderTestImpl(final OkHttpClient.Builder builder) {
+        BraveDownloaderTestImplUtils.addCookieManager(builder);
+
         this.clientWrapper = new RateLimitedClientWrapper(builder
                 .readTimeout(30, TimeUnit.SECONDS)
                 // Required for certain services

@@ -15,6 +15,7 @@ import org.schabi.newpipe.extractor.exceptions.ExtractionException;
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
 import org.schabi.newpipe.extractor.linkhandler.ListLinkHandler;
 import org.schabi.newpipe.extractor.localization.TimeAgoParser;
+import org.schabi.newpipe.extractor.search.filter.FilterItem;
 import org.schabi.newpipe.extractor.services.youtube.YoutubeChannelHelper;
 import org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeChannelTabLinkHandlerFactory;
 
@@ -56,21 +57,21 @@ public class YoutubeChannelTabExtractor extends ChannelTabExtractor {
 
     @Nonnull
     private String getChannelTabsParameters() throws ParsingException {
-        final String name = getName();
-        switch (name) {
-            case ChannelTabs.VIDEOS:
-                return "EgZ2aWRlb3PyBgQKAjoA";
-            case ChannelTabs.SHORTS:
-                return "EgZzaG9ydHPyBgUKA5oBAA%3D%3D";
-            case ChannelTabs.LIVESTREAMS:
-                return "EgdzdHJlYW1z8gYECgJ6AA%3D%3D";
-            case ChannelTabs.ALBUMS:
-                return "EghyZWxlYXNlc_IGBQoDsgEA";
-            case ChannelTabs.PLAYLISTS:
-                return "EglwbGF5bGlzdHPyBgQKAkIA";
-            default:
-                throw new ParsingException("Unsupported channel tab: " + name);
+        final FilterItem type = getChannelTabType();
+        if (type.equals(ChannelTabs.VIDEOS)) {
+            return "EgZ2aWRlb3PyBgQKAjoA";
+        } else if (type.equals(ChannelTabs.SHORTS)) {
+            return "EgZzaG9ydHPyBgUKA5oBAA%3D%3D";
+        } else if (type.equals(ChannelTabs.LIVESTREAMS)) {
+            return "EgdzdHJlYW1z8gYECgJ6AA%3D%3D";
+        } else if (type.equals(ChannelTabs.ALBUMS)) {
+            return "EghyZWxlYXNlc_IGBQoDsgEA";
+        } else if (type.equals(ChannelTabs.PLAYLISTS)) {
+            return "EglwbGF5bGlzdHPyBgQKAkIA";
+        } else if (type.equals(ChannelTabs.PODCASTS)) {
+            return "Eghwb2RjYXN0c_IGBQoDugEA";
         }
+        throw new ParsingException("Unsupported channel tab: " + type);
     }
 
     @Override
@@ -93,7 +94,7 @@ public class YoutubeChannelTabExtractor extends ChannelTabExtractor {
     public String getUrl() throws ParsingException {
         try {
             return YoutubeChannelTabLinkHandlerFactory.getInstance()
-                    .getUrl("channel/" + getId(), List.of(getName()), "");
+                    .getUrl("channel/" + getId(), getLinkHandler().getContentFilters(), List.of());
         } catch (final ParsingException e) {
             return super.getUrl();
         }
@@ -197,7 +198,8 @@ public class YoutubeChannelTabExtractor extends ChannelTabExtractor {
     }
 
     Optional<JsonObject> getTabData() {
-        final String urlSuffix = YoutubeChannelTabLinkHandlerFactory.getUrlSuffix(getName());
+        final String urlSuffix =
+                YoutubeChannelTabLinkHandlerFactory.getUrlSuffix(getChannelTabType());
 
         return jsonResponse.getObject("contents")
                 .getObject("twoColumnBrowseResultsRenderer")

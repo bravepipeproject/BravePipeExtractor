@@ -33,12 +33,14 @@ import static org.schabi.newpipe.extractor.utils.Utils.isNullOrEmpty;
  * for an extractor for this UI data type.
  * </p>
  */
-class YoutubeShortsLockupInfoItemExtractor implements StreamInfoItemExtractor {
+public class YoutubeShortsLockupInfoItemExtractor extends BraveYoutubeShortsLockupHelper
+        implements StreamInfoItemExtractor {
 
     @Nonnull
     private final JsonObject shortsLockupViewModel;
 
-    YoutubeShortsLockupInfoItemExtractor(@Nonnull final JsonObject shortsLockupViewModel) {
+    public YoutubeShortsLockupInfoItemExtractor(@Nonnull final JsonObject shortsLockupViewModel) {
+        super(shortsLockupViewModel);
         this.shortsLockupViewModel = shortsLockupViewModel;
     }
 
@@ -97,9 +99,7 @@ class YoutubeShortsLockupInfoItemExtractor implements StreamInfoItemExtractor {
 
     @Override
     public long getViewCount() throws ParsingException {
-        final String viewCountText = shortsLockupViewModel.getObject("overlayMetadata")
-                        .getObject("secondaryText")
-                        .getString("content");
+        final String viewCountText = braveExtractViewsOrMembersOnlyText();
         if (!isNullOrEmpty(viewCountText)) {
             if (viewCountText.contains("✪")) {
                 // If secondary text content contains ✪, this short should be a members first or a
@@ -127,7 +127,7 @@ class YoutubeShortsLockupInfoItemExtractor implements StreamInfoItemExtractor {
 
     @Override
     public boolean isAd() throws ParsingException {
-        return false;
+        return braveDoIgnoreMembersOnly();
     }
 
     @Override

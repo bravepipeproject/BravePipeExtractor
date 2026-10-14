@@ -1,14 +1,13 @@
 package org.schabi.newpipe.extractor.services.media_ccc.search;
 
 import static org.schabi.newpipe.extractor.ServiceList.MediaCCC;
-import static org.schabi.newpipe.extractor.services.media_ccc.linkHandler.MediaCCCSearchQueryHandlerFactory.CONFERENCES;
-import static org.schabi.newpipe.extractor.services.media_ccc.linkHandler.MediaCCCSearchQueryHandlerFactory.EVENTS;
 import static java.util.Collections.singletonList;
 
 import org.schabi.newpipe.extractor.InfoItem;
 import org.schabi.newpipe.extractor.StreamingService;
 import org.schabi.newpipe.extractor.search.SearchExtractor;
 import org.schabi.newpipe.extractor.services.DefaultSearchExtractorTest;
+import org.schabi.newpipe.extractor.services.media_ccc.search.filter.MediaCCCFilters;
 
 import javax.annotation.Nullable;
 
@@ -37,7 +36,8 @@ public class MediaCCCSearchExtractorTest {
 
         @Override
         protected SearchExtractor createExtractor() throws Exception {
-            return MediaCCC.getSearchExtractor(QUERY, singletonList(CONFERENCES), "");
+            return MediaCCC.getSearchExtractor(QUERY, singletonList(
+                    getFilterItem(MediaCCC, MediaCCCFilters.ID_CF_MAIN_CONFERENCES)), null);
         }
 
         @Override public StreamingService expectedService() { return MediaCCC; }
@@ -57,7 +57,8 @@ public class MediaCCCSearchExtractorTest {
 
         @Override
         protected SearchExtractor createExtractor() throws Exception {
-            return MediaCCC.getSearchExtractor(QUERY, singletonList(EVENTS), "");
+            return MediaCCC.getSearchExtractor(QUERY, singletonList(
+                    getFilterItem(MediaCCC, MediaCCCFilters.ID_CF_MAIN_EVENTS)), null);
         }
 
         @Override public StreamingService expectedService() { return MediaCCC; }

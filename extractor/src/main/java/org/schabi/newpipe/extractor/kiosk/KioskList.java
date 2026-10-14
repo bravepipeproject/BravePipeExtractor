@@ -11,7 +11,7 @@ import org.schabi.newpipe.extractor.localization.ContentCountry;
 import org.schabi.newpipe.extractor.localization.Localization;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,7 +27,7 @@ public class KioskList {
     }
 
     private final StreamingService service;
-    private final HashMap<String, KioskEntry> kioskList = new HashMap<>();
+    private final Map<String, KioskEntry> kioskList = new LinkedHashMap<>();
     private String defaultKiosk = null;
 
     @Nullable

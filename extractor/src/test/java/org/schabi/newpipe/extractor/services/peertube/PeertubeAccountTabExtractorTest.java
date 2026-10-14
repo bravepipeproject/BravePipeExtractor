@@ -20,7 +20,7 @@ class PeertubeAccountTabExtractorTest {
         }
 
         @Override public StreamingService expectedService() throws Exception { return PeerTube; }
-        @Override public String expectedName() throws Exception { return ChannelTabs.VIDEOS; }
+        @Override public String expectedName() throws Exception { return ChannelTabs.VIDEOS.getNameId().name(); }
         @Override public String expectedId() throws Exception { return "accounts/framasoft"; }
         @Override public String expectedUrlContains() throws Exception { return "https://framatube.org/accounts/framasoft/videos"; }
         @Override public String expectedOriginalUrlContains() throws Exception { return "https://framatube.org/accounts/framasoft/videos"; }
@@ -38,7 +38,7 @@ class PeertubeAccountTabExtractorTest {
         }
 
         @Override public StreamingService expectedService() throws Exception { return PeerTube; }
-        @Override public String expectedName() throws Exception { return ChannelTabs.CHANNELS; }
+        @Override public String expectedName() throws Exception { return ChannelTabs.CHANNELS.getNameId().name(); }
         @Override public String expectedId() throws Exception { return "accounts/framasoft"; }
         @Override public String expectedUrlContains() throws Exception { return "https://framatube.org/accounts/framasoft/video-channels"; }
         @Override public String expectedOriginalUrlContains() throws Exception { return "https://framatube.org/accounts/framasoft/video-channels"; }

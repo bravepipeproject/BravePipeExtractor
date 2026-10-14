@@ -1,0 +1,50 @@
+{
+  "request": {
+    "httpMethod": "GET",
+    "url": "https://wn0.rumble.com/service.php?video_id\u003d200976504\u0026viewer_id\u003d5swoGj0j4NI\u0026name\u003dvideo.watching-now",
+    "headers": {
+      "Accept-Language": [
+        "en-GB, en;q\u003d0.9"
+      ]
+    },
+    "localization": {
+      "languageCode": "en",
+      "countryCode": "GB"
+    }
+  },
+  "response": {
+    "responseCode": 200,
+    "responseMessage": "",
+    "responseHeaders": {
+      "cache-control": [
+        "private,max-age\u003d0"
+      ],
+      "content-length": [
+        "122"
+      ],
+      "content-type": [
+        "application/json; charset\u003dutf-8"
+      ],
+      "date": [
+        "Wed, 06 Sep 2023 08:30:34 GMT"
+      ],
+      "expires": [
+        "Thu, 01 Jan 1970 00:00:01 GMT"
+      ],
+      "server": [
+        "nginx"
+      ],
+      "strict-transport-security": [
+        "max-age\u003d31536000;includeSubDomains;preload"
+      ],
+      "vary": [
+        "Accept-Encoding"
+      ],
+      "x-frame-options": [
+        "SAMEORIGIN"
+      ]
+    },
+    "responseBody": "{\"data\":{\"video_id\":200976504,\"num_watching_now\":66,\"viewer_count\":66,\"livestream_status\":1,\"scheduled_on_ts\":1693749600}}",
+    "latestUrl": "https://wn0.rumble.com/service.php?video_id\u003d200976504\u0026viewer_id\u003d5swoGj0j4NI\u0026name\u003dvideo.watching-now"
+  }
+}

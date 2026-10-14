@@ -23,7 +23,7 @@ class PeertubeChannelTabExtractorTest {
         }
 
         @Override public StreamingService expectedService() throws Exception { return PeerTube; }
-        @Override public String expectedName() throws Exception { return ChannelTabs.VIDEOS; }
+        @Override public String expectedName() throws Exception { return ChannelTabs.VIDEOS.getNameId().name(); }
         @Override public String expectedId() throws Exception { return "video-channels/lqdn_channel@video.lqdn.fr"; }
         @Override public String expectedUrlContains() throws Exception { return "https://framatube.org/video-channels/lqdn_channel@video.lqdn.fr/videos"; }
         @Override public String expectedOriginalUrlContains() throws Exception { return "https://framatube.org/video-channels/lqdn_channel@video.lqdn.fr/videos"; }
@@ -48,7 +48,7 @@ class PeertubeChannelTabExtractorTest {
         }
 
         @Override public StreamingService expectedService() throws Exception { return PeerTube; }
-        @Override public String expectedName() throws Exception { return ChannelTabs.PLAYLISTS; }
+        @Override public String expectedName() throws Exception { return ChannelTabs.PLAYLISTS.getNameId().name(); }
         @Override public String expectedId() throws Exception { return "video-channels/lqdn_channel@video.lqdn.fr"; }
         @Override public String expectedUrlContains() throws Exception { return "https://framatube.org/video-channels/lqdn_channel@video.lqdn.fr/video-playlists"; }
         @Override public String expectedOriginalUrlContains() throws Exception { return "https://framatube.org/video-channels/lqdn_channel@video.lqdn.fr/video-playlists"; }
@@ -65,7 +65,7 @@ class PeertubeChannelTabExtractorTest {
         }
 
         @Override public StreamingService expectedService() throws Exception { return PeerTube; }
-        @Override public String expectedName() throws Exception { return ChannelTabs.CHANNELS; }
+        @Override public String expectedName() throws Exception { return ChannelTabs.CHANNELS.getNameId().name(); }
         @Override public String expectedId() throws Exception { return "accounts/framasoft"; }
         @Override public String expectedUrlContains() throws Exception { return "https://framatube.org/accounts/framasoft/video-channels"; }
         @Override public String expectedOriginalUrlContains() throws Exception { return "https://framatube.org/accounts/framasoft/video-channels"; }

@@ -51,7 +51,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class YoutubeStreamInfoItemExtractor implements StreamInfoItemExtractor {
+public class YoutubeStreamInfoItemExtractor extends BraveYoutubeStreamInfoItemHelper
+        implements StreamInfoItemExtractor {
 
     private static final Pattern ACCESSIBILITY_DATA_VIEW_COUNT_REGEX =
             Pattern.compile("([\\d,]+) views$");
@@ -70,6 +71,7 @@ public class YoutubeStreamInfoItemExtractor implements StreamInfoItemExtractor {
      */
     public YoutubeStreamInfoItemExtractor(final JsonObject videoInfoItem,
                                           @Nullable final TimeAgoParser timeAgoParser) {
+        super(videoInfoItem);
         this.videoInfo = videoInfoItem;
         this.timeAgoParser = timeAgoParser;
     }
@@ -116,7 +118,7 @@ public class YoutubeStreamInfoItemExtractor implements StreamInfoItemExtractor {
     @Override
     public boolean isAd() throws ParsingException {
         return isPremium() || getName().equals("[Private video]")
-                || getName().equals("[Deleted video]");
+                || getName().equals("[Deleted video]") || braveDoIgnoreMembersOnly();
     }
 
     @Override

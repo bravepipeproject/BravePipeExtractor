@@ -5,6 +5,7 @@ import com.grack.nanojson.JsonObject;
 import org.schabi.newpipe.extractor.Image;
 import org.schabi.newpipe.extractor.exceptions.ParsingException;
 import org.schabi.newpipe.extractor.playlist.PlaylistInfoItemExtractor;
+import org.schabi.newpipe.extractor.services.youtube.search.filter.YoutubeFilters;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -14,7 +15,6 @@ import static org.schabi.newpipe.extractor.ListExtractor.ITEM_COUNT_UNKNOWN;
 import static org.schabi.newpipe.extractor.services.youtube.YoutubeParsingHelper.getTextFromObject;
 import static org.schabi.newpipe.extractor.services.youtube.YoutubeParsingHelper.getImagesFromThumbnailsArray;
 import static org.schabi.newpipe.extractor.services.youtube.YoutubeParsingHelper.getUrlFromNavigationEndpoint;
-import static org.schabi.newpipe.extractor.services.youtube.linkHandler.YoutubeSearchQueryHandlerFactory.MUSIC_ALBUMS;
 import static org.schabi.newpipe.extractor.utils.Utils.isNullOrEmpty;
 
 public class YoutubeMusicAlbumOrPlaylistInfoItemExtractor implements PlaylistInfoItemExtractor {
@@ -23,13 +23,13 @@ public class YoutubeMusicAlbumOrPlaylistInfoItemExtractor implements PlaylistInf
 
     public YoutubeMusicAlbumOrPlaylistInfoItemExtractor(final JsonObject albumOrPlaylistInfoItem,
                                                         final JsonArray descriptionElements,
-                                                        final String searchType) {
+                                                        final int searchTypeId) {
         this.albumOrPlaylistInfoItem = albumOrPlaylistInfoItem;
 
         this.descriptionElementUploader = descriptionElements.getObject(
                 // For albums: "Album/Single/EP", " • ", uploader, " • ", year -> uploader is at 2
                 // For playlists: uploader, " • ", view count -> uploader is at 0
-                MUSIC_ALBUMS.equals(searchType) ? 2 : 0
+                (YoutubeFilters.ID_CF_MAIN_YOUTUBE_MUSIC_ALBUMS == searchTypeId) ? 2 : 0
         );
     }
 
