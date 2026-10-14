@@ -70,6 +70,8 @@ public class YoutubeChannelTabExtractor extends ChannelTabExtractor {
             return "EglwbGF5bGlzdHPyBgQKAkIA";
         } else if (type.equals(ChannelTabs.PODCASTS)) {
             return "Eghwb2RjYXN0c_IGBQoDugEA";
+        } else if (type.equals(ChannelTabs.COURSES)) {
+            return "Egdjb3Vyc2Vz8gYFCgPCAQA%3D";
         }
         throw new ParsingException("Unsupported channel tab: " + type);
     }

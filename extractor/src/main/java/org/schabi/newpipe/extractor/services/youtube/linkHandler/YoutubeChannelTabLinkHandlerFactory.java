@@ -37,6 +37,8 @@ public final class YoutubeChannelTabLinkHandlerFactory extends ListLinkHandlerFa
             return "/playlists";
         } else if (tab.equals(ChannelTabs.PODCASTS)) {
             return "/podcasts";
+        } else if (tab.equals(ChannelTabs.COURSES)) {
+            return "/courses";
         }
         throw new UnsupportedTabException(tab);
     }

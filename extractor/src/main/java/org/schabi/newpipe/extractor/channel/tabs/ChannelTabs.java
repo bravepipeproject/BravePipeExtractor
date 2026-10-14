@@ -1,6 +1,7 @@
 package org.schabi.newpipe.extractor.channel.tabs;
 
 import static org.schabi.newpipe.extractor.search.filter.LibraryStringIds.CHANNEL_TAB_ALBUMS;
+import static org.schabi.newpipe.extractor.search.filter.LibraryStringIds.CHANNEL_TAB_COURSES;
 import static org.schabi.newpipe.extractor.search.filter.LibraryStringIds.CHANNEL_TAB_CHANNELS;
 import static org.schabi.newpipe.extractor.search.filter.LibraryStringIds.CHANNEL_TAB_LIKES;
 import static org.schabi.newpipe.extractor.search.filter.LibraryStringIds.CHANNEL_TAB_LIVESTREAMS;
@@ -25,6 +26,7 @@ public final class ChannelTabs {
     public static final int ID_ALBUMS = 6;
     public static final int ID_LIKES = 7;
     public static final int ID_PODCASTS = 8;
+    public static final int ID_COURSES = 9;
 
     public static final FilterItem VIDEOS = new FilterItem(ID_VIDEOS, CHANNEL_TAB_VIDEOS);
     public static final FilterItem TRACKS = new FilterItem(ID_TRACKS, CHANNEL_TAB_TRACKS);
@@ -36,6 +38,7 @@ public final class ChannelTabs {
     public static final FilterItem ALBUMS = new FilterItem(ID_ALBUMS, CHANNEL_TAB_ALBUMS);
     public static final FilterItem LIKES = new FilterItem(ID_LIKES, CHANNEL_TAB_LIKES);
     public static final FilterItem PODCASTS = new FilterItem(ID_PODCASTS, CHANNEL_TAB_PODCASTS);
+    public static final FilterItem COURSES = new FilterItem(ID_COURSES, CHANNEL_TAB_COURSES);
 
     private ChannelTabs() {
     }

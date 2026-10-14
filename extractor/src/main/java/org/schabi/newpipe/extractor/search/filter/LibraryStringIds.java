@@ -101,6 +101,7 @@ public enum LibraryStringIds {
     CHANNEL_TAB_TRACKS, /* Tracks */
     CHANNEL_TAB_SHORTS, /* Shorts */
     CHANNEL_TAB_LIVESTREAMS, /* Livestreams */
+    CHANNEL_TAB_COURSES, /* Courses */
     CHANNEL_TAB_CHANNELS, /* Channels */
     CHANNEL_TAB_PLAYLISTS, /* Playlists */
     CHANNEL_TAB_ALBUMS, /* Albums */
