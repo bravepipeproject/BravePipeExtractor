@@ -42,10 +42,9 @@ public class RumbleCommentsExtractor extends CommentsExtractor {
         super(service, uiHandler);
     }
 
-    @Nonnull
-    @Override
-    public String getUrl() throws ParsingException {
-        final String videoUrl = super.getUrl();
+    // not getUrl(): CommentsInfo.getMoreItems() rebuilds the extractor from that url
+    private String getApiUrl() throws ParsingException {
+        final String videoUrl = getUrl();
         final String id = RumbleParsingHelper.getEmbedVideoId(
                 videoUrl,
                 () -> getDownloader().get(videoUrl).responseBody()
@@ -63,7 +62,7 @@ public class RumbleCommentsExtractor extends CommentsExtractor {
     public InfoItemsPage<CommentsInfoItem> getInitialPage()
             throws IOException, ExtractionException {
         Downloader downloader = NewPipe.getDownloader();
-        byte[] responseBody = downloader.get(getUrl()).responseBody().getBytes();
+        byte[] responseBody = downloader.get(getApiUrl()).responseBody().getBytes();
         return getPage(new Page("1", responseBody));
     }
 
@@ -175,7 +174,7 @@ public class RumbleCommentsExtractor extends CommentsExtractor {
                     doc = null;
                     return;
                 }
-                Elements createComment = doc.select("li.comment-item.comment-item.comments-create");
+                Elements createComment = doc.select("li.comments-create");
                 if (!createComment.isEmpty()) {
                     createComment.remove();
                 }
@@ -183,7 +182,7 @@ public class RumbleCommentsExtractor extends CommentsExtractor {
             }
         } catch (final JsonParserException e) {
             e.printStackTrace();
-            throw new ExtractionException("Could not read json from: " + getUrl());
+            throw new ExtractionException("Could not read json from: " + getApiUrl());
         }
     }
 }

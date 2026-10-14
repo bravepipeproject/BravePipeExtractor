@@ -2,6 +2,7 @@ package org.schabi.newpipe.extractor.services.rumble.extractors;
 
 import com.github.evermindzz.hlsdownloader.common.Fetcher;
 import com.github.evermindzz.hlsdownloader.parser.HlsParser;
+import com.grack.nanojson.JsonArray;
 import com.grack.nanojson.JsonObject;
 import com.grack.nanojson.JsonParser;
 import com.grack.nanojson.JsonParserException;
@@ -565,9 +566,16 @@ public class RumbleStreamExtractor extends StreamExtractor {
     @Nullable
     @Override
     public StreamInfoItemsCollector getRelatedItems() throws ExtractionException {
-        final List<Node> nodes = doc.select(relatedStreamHtmlKey).first().childNodes();
         final StreamInfoItemsCollector collector = new StreamInfoItemsCollector(getServiceId());
-        for (final Node node : nodes) {
+        final Element relatedList = doc.selectFirst(relatedStreamHtmlKey);
+        if (relatedList == null) {
+            // newer pages fill <rum-videos-grid> client side
+            RumbleJsonVideoItemHelper.toInfoItems(fetchRelatedVideosJson())
+                    .forEach(collector::commit);
+            return collector;
+        }
+
+        for (final Node node : relatedList.childNodes()) {
             // we only want Element(s) as they might bear useful content
             if ((node instanceof Element)
                     && (null != ((Element) node).closest(".mediaList-item"))) {
@@ -578,6 +586,21 @@ public class RumbleStreamExtractor extends StreamExtractor {
         }
 
         return collector;
+    }
+
+    private JsonArray fetchRelatedVideosJson() throws ExtractionException {
+        final Element grid = doc.selectFirst("rum-videos-grid[video-id]");
+        final String videoId = grid != null ? grid.attr("video-id") : retrieveNumericVideoId();
+        final String url = "https://rumble.com/service.php?api=7&name=video.autoplay&video_id="
+                + videoId + "&options=video.full";
+        try {
+            return JsonParser.object()
+                    .from(getDownloader().get(url).responseBody())
+                    .getObject("data")
+                    .getArray("videos");
+        } catch (final IOException | JsonParserException e) {
+            throw new ParsingException("Could not fetch related videos from: " + url, e);
+        }
     }
 
     /**
